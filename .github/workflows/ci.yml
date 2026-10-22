@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    name: Types, tests, budgets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test:unit
+      - run: npm run bench:check
+      - run: npm run build
+      - run: npm run bundle:check
+      - run: npm run audit:licenses:check
+      - run: npm run release:check
+
+  e2e:
+    name: End-to-end suites
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox
+      - run: npm run build
+      - run: npm run test:scenarios
+      - run: npm run test:matrix
+      - run: npm run test:compat
+      - run: npm run test:hosting
