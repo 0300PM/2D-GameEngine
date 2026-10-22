@@ -1,0 +1,22 @@
+{
+  "formatVersion": 1,
+  "name": "TopDownDemo",
+  "game": {
+    "width": 1280,
+    "height": 720,
+    "scaleMode": "fit",
+    "backgroundColor": "#151515"
+  },
+  "assets": [
+    {
+      "id": "player",
+      "type": "image",
+      "src": "/assets/player.png"
+    },
+    {
+      "id": "coin",
+      "type": "image",
+      "src": "/assets/coin.png"
+    }
+  ]
+}

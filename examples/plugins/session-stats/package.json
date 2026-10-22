@@ -1,0 +1,12 @@
+{
+  "name": "@b2d/plugin-session-stats",
+  "version": "1.0.0",
+  "description": "Browser2DEngine example plugin: session statistics panel",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "peerDependencies": {
+    "browser2d-engine": "^0.1.0"
+  },
+  "keywords": ["browser2dengine", "plugin"]
+}
