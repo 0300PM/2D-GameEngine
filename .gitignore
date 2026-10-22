@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.DS_Store
+build
+build-wasm
+*.wasm
+*.js.mem
+release/
