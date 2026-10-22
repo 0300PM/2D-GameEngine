@@ -1,0 +1,149 @@
+{
+  "format": "b2d-benchmarks",
+  "version": 1,
+  "environment": {
+    "node": "v20.20.2",
+    "platform": "linux-x64",
+    "cpu": "Intel(R) Xeon(R) Processor @ 2.60GHz",
+    "cores": 2,
+    "recordedAt": "2026-10-22T14:16:50.480Z"
+  },
+  "benchmarks": [
+    {
+      "group": "objects",
+      "name": "create 2 000 objects",
+      "hz": 2034.9760308253387,
+      "meanMs": 0.4907317199736864,
+      "medianMs": 0.49140627941176457,
+      "iterations": 2043
+    },
+    {
+      "group": "objects",
+      "name": "create 2 000 objects with a component",
+      "hz": 1838.1410970992076,
+      "meanMs": 0.5444469092607187,
+      "medianMs": 0.5440278777173917,
+      "iterations": 1840
+    },
+    {
+      "group": "objects",
+      "name": "update 2 000 transforms and read world space",
+      "hz": 3292.3879181973357,
+      "meanMs": 0.31145383082120043,
+      "medianMs": 0.30373091654021284,
+      "iterations": 3219
+    },
+    {
+      "group": "objects",
+      "name": "destroy 2 000 objects",
+      "hz": 1363.752913833546,
+      "meanMs": 0.7393961832365112,
+      "medianMs": 0.733270660583942,
+      "iterations": 1359
+    },
+    {
+      "group": "queries",
+      "name": "index 2 000 objects",
+      "hz": 1177.057121784116,
+      "meanMs": 0.8634444445684943,
+      "medianMs": 0.8495764406779657,
+      "iterations": 1164
+    },
+    {
+      "group": "queries",
+      "name": "find by id in 2 000 objects",
+      "hz": 1202.0248862344588,
+      "meanMs": 0.8352317566995474,
+      "medianMs": 0.831929531120329,
+      "iterations": 1201
+    },
+    {
+      "group": "queries",
+      "name": "find 1 000 by tag",
+      "hz": 1139.7104907411394,
+      "meanMs": 0.8857241763127677,
+      "medianMs": 0.8774158070175457,
+      "iterations": 1133
+    },
+    {
+      "group": "queries",
+      "name": "find by two tags (all) in 2 000 objects",
+      "hz": 1092.3975158541282,
+      "meanMs": 0.9305083288003171,
+      "medianMs": 0.9154176803652981,
+      "iterations": 1078
+    },
+    {
+      "group": "collisions",
+      "name": "register 200 overlap pairs",
+      "hz": 233103.04193444844,
+      "meanMs": 0.004296173606009595,
+      "medianMs": 0.004289948306557118,
+      "iterations": 232790
+    },
+    {
+      "group": "collisions",
+      "name": "dispatch 5 000 overlap callbacks",
+      "hz": 601124.059240846,
+      "meanMs": 0.0016843653982207593,
+      "medianMs": 0.0016635501185277642,
+      "iterations": 594397
+    },
+    {
+      "group": "collisions",
+      "name": "broad-phase AABB over 5 000 pairs",
+      "hz": 129774.65285280412,
+      "meanMs": 0.007753082134853817,
+      "medianMs": 0.007705664997110354,
+      "iterations": 128993
+    },
+    {
+      "group": "tilemap",
+      "name": "import 128×128 Tiled map",
+      "hz": 3868.490901699266,
+      "meanMs": 0.30440004780778673,
+      "medianMs": 0.25849873385012795,
+      "iterations": 3434
+    },
+    {
+      "group": "tilemap",
+      "name": "import and collect spawns",
+      "hz": 4146.539319017022,
+      "meanMs": 0.2426859326267455,
+      "medianMs": 0.24116496265060378,
+      "iterations": 4134
+    },
+    {
+      "group": "assets",
+      "name": "register 500 assets",
+      "hz": 983.4575402765444,
+      "meanMs": 1.0626994466891304,
+      "medianMs": 1.0168207157360387,
+      "iterations": 956
+    },
+    {
+      "group": "assets",
+      "name": "validate a 500 asset manifest",
+      "hz": 687.5168849538545,
+      "meanMs": 1.4480549640447307,
+      "medianMs": 1.4545097318840672,
+      "iterations": 695
+    },
+    {
+      "group": "assets",
+      "name": "build a size report for 500 assets",
+      "hz": 949.1376984623298,
+      "meanMs": 1.0550270654094964,
+      "medianMs": 1.053587905759165,
+      "iterations": 951
+    },
+    {
+      "group": "assets",
+      "name": "diagnose usage of 500 assets",
+      "hz": 592.708839527643,
+      "meanMs": 1.6906206683112406,
+      "medianMs": 1.687169033613445,
+      "iterations": 595
+    }
+  ]
+}

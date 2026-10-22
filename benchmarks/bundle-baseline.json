@@ -1,0 +1,112 @@
+{
+  "generatedAt": "2026-10-22T14:48:45.073Z",
+  "buildId": "0.1.0+20261022-144838",
+  "base": "./",
+  "totals": {
+    "bytes": 2428036,
+    "gzip": 626531,
+    "brotli": 526462,
+    "files": 19
+  },
+  "singleFile": {
+    "path": "playground.html",
+    "bytes": 1661264
+  },
+  "files": [
+    {
+      "path": "assets/index-fF3ZEsj2.js",
+      "bytes": 1622958,
+      "gzip": 381536
+    },
+    {
+      "path": "docs/index.html",
+      "bytes": 670823,
+      "gzip": 186954
+    },
+    {
+      "path": "docs/AUDIT_REPORT.md",
+      "bytes": 27589,
+      "gzip": 12033
+    },
+    {
+      "path": "index.html",
+      "bytes": 27148,
+      "gzip": 7511
+    },
+    {
+      "path": "docs/api/README.md",
+      "bytes": 21983,
+      "gzip": 8765
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "bytes": 18222,
+      "gzip": 7450
+    },
+    {
+      "path": "docs/MVP_CHECKLIST.md",
+      "bytes": 14501,
+      "gzip": 6605
+    },
+    {
+      "path": "assets/pickup.wav",
+      "bytes": 7100,
+      "gzip": 5625
+    },
+    {
+      "path": "docs/DOCUMENTATION_PL.md",
+      "bytes": 3448,
+      "gzip": 1914
+    },
+    {
+      "path": "docs/DEPLOYMENT.md",
+      "bytes": 3335,
+      "gzip": 1820
+    },
+    {
+      "path": "docs/DOCUMENTATION_EN.md",
+      "bytes": 2992,
+      "gzip": 1573
+    },
+    {
+      "path": "404.html",
+      "bytes": 2677,
+      "gzip": 1265
+    },
+    {
+      "path": "docs/guides/getting-started.md",
+      "bytes": 2486,
+      "gzip": 1291
+    },
+    {
+      "path": "docs/guides/wasm.md",
+      "bytes": 1430,
+      "gzip": 861
+    },
+    {
+      "path": "assets/spark.png",
+      "bytes": 389,
+      "gzip": 412
+    },
+    {
+      "path": "assets/coin.png",
+      "bytes": 269,
+      "gzip": 292
+    },
+    {
+      "path": "assets/README.md",
+      "bytes": 238,
+      "gzip": 215
+    },
+    {
+      "path": "assets/tiles.png",
+      "bytes": 234,
+      "gzip": 172
+    },
+    {
+      "path": "assets/player.png",
+      "bytes": 214,
+      "gzip": 237
+    }
+  ]
+}
