@@ -1,0 +1,14 @@
+{
+  "name": "@browser2d/phaser-adapter",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "private": true,
+  "peerDependencies": {
+    "phaser": "^3.80.1"
+  },
+  "dependencies": {
+    "@browser2d/engine": "0.1.0"
+  },
+  "license": "MIT"
+}
