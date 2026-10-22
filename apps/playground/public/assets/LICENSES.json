@@ -1,0 +1,27 @@
+{
+  "player.png": {
+    "license": "CC0-1.0",
+    "author": "Browser2DEngine contributors",
+    "source": "generated placeholder (scripts/generate-assets.mjs equivalent), no third-party artwork"
+  },
+  "coin.png": {
+    "license": "CC0-1.0",
+    "author": "Browser2DEngine contributors",
+    "source": "generated placeholder, no third-party artwork"
+  },
+  "spark.png": {
+    "license": "CC0-1.0",
+    "author": "Browser2DEngine contributors",
+    "source": "generated placeholder, no third-party artwork"
+  },
+  "tiles.png": {
+    "license": "CC0-1.0",
+    "author": "Browser2DEngine contributors",
+    "source": "generated placeholder, no third-party artwork"
+  },
+  "pickup.wav": {
+    "license": "CC0-1.0",
+    "author": "Browser2DEngine contributors",
+    "source": "synthesised sine sweep, no third-party audio"
+  }
+}

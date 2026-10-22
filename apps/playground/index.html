@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="pl" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Playground — Browser2DEngine</title>
+  <meta name="description" content="Minimalistyczny playground silnika Browser2DEngine. Przykłady użycia: ruch, kolizje, kamera, zdarzenia." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1115'/%3E%3Cpath d='M8 12.5l8-4 8 4v7l-8 4-8-4z' fill='none' stroke='%23fff' stroke-width='1.5'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #fff; --bg-sub: #f7f8f8; --bg-hover: #f0f1f2;
+      --border: #e4e6e8; --border-strong: #cfd3d6;
+      --text: #0f1115; --text-muted: #4a5160; --text-faint: #6b7280;
+      --stage: #0b0c0e; --accent: #e2b714;
+      --head: 58px; --radius: 10px;
+    }
+    [data-theme="dark"] {
+      --bg: #0b0c0e; --bg-sub: #15171a; --bg-hover: #1d2024;
+      --border: #24272c; --border-strong: #3a3f46;
+      --text: #f2f3f5; --text-muted: #a8afba; --text-faint: #7d848f;
+      --stage: #08090b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text); min-height: 100vh;
+      font: 15px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex; flex-direction: column;
+    }
+    a { color: inherit; text-decoration: none; }
+    code, kbd, .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .logo-bg { fill: #0f1115; }
+    .logo-fg { stroke: #fff; }
+    [data-theme="dark"] .logo-bg { fill: #f2f3f5; }
+    [data-theme="dark"] .logo-fg { stroke: #0b0c0e; }
+
+    .head {
+      position: sticky; top: 0; z-index: 30; height: var(--head); flex: none;
+      display: flex; align-items: center; gap: 16px; padding: 0 20px;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+    }
+    .brand { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; }
+    .brand span.tag { font-size: 11px; font-weight: 500; color: var(--text-faint); border: 1px solid var(--border); border-radius: 999px; padding: 1px 7px; }
+    .head-nav { display: flex; gap: 4px; margin-left: 10px; }
+    .head-nav a { font-size: 13px; color: var(--text-muted); padding: 5px 10px; border-radius: 7px; }
+    .head-nav a:hover { color: var(--text); background: var(--bg-sub); }
+    .head-nav a.on { color: var(--text); background: var(--bg-sub); font-weight: 600; }
+    .tools { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+    .seg { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--bg-sub); }
+    .seg button { border: 0; background: transparent; padding: 6px 9px; font: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+    .seg button.on { background: var(--text); color: var(--bg); }
+    .btn {
+      font: inherit; font-size: 12.5px; font-weight: 500; padding: 6px 11px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--bg); color: var(--text-muted);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+    }
+    .btn:hover { color: var(--text); border-color: var(--border-strong); }
+    .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .btn.primary:hover { opacity: .88; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .icon-btn { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text-muted); cursor: pointer; font-size: 14px; }
+    .icon-btn:hover { color: var(--text); border-color: var(--border-strong); }
+
+    .stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 22px 20px 26px; }
+    .frame {
+      width: min(1040px, 100%); aspect-ratio: 16 / 9; position: relative;
+      border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--stage);
+    }
+    .frame:fullscreen { width: 100%; height: 100%; aspect-ratio: auto; border: 0; border-radius: 0; }
+    #game-container { position: absolute; inset: 0; }
+    #game-container canvas { display: block; }
+
+    .bar { width: min(1040px, 100%); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .bar-state { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 13px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+    .bar-state strong { font-weight: 600; white-space: nowrap; }
+    .bar-state span.sep { color: var(--text-faint); }
+    .bar-state #status { color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-actions { display: flex; gap: 8px; margin-left: auto; }
+    .boot-error {
+      position: absolute; inset: 0; display: none; flex-direction: column; align-items: center;
+      justify-content: safe center; gap: 10px; padding: 24px; text-align: center; color: #a8afba;
+      background: var(--stage); z-index: 5; overflow: auto;
+    }
+    .boot-error.on { display: flex; }
+    .boot-error strong { color: #f2f3f5; font-size: 14px; font-weight: 600; }
+    .boot-error p { font-size: 12.5px; max-width: 460px; line-height: 1.6; }
+    .boot-error code { font-size: 11.5px; color: #e2b714; word-break: break-word; }
+    .boot-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 2px; }
+    .boot-diag { width: min(560px, 100%); margin-top: 4px; text-align: left; }
+    .boot-diag summary { cursor: pointer; font-family: var(--mono); font-size: 11.5px; color: #7d848f; }
+    .boot-diag summary:hover { color: #a8afba; }
+    .boot-diag pre {
+      margin: 8px 0 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg);
+      font-family: var(--mono); font-size: 10.5px; line-height: 1.55; color: #9aa1ac; white-space: pre-wrap;
+      word-break: break-word; max-height: 288px; overflow: auto; text-align: left;
+    }
+
+    .hints { width: min(1040px, 100%); display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--text-faint); }
+    .hints span { display: inline-flex; align-items: center; gap: 6px; }
+    kbd { border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; background: var(--bg-sub); padding: 0 5px; font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+    .modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .modal[hidden] { display: none; }
+    .backdrop { position: absolute; inset: 0; background: rgba(9, 10, 12, .45); backdrop-filter: blur(3px); }
+    .card {
+      position: relative; width: min(720px, 100%); max-height: min(620px, calc(100vh - 48px));
+      display: flex; flex-direction: column; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
+      overflow: hidden;
+    }
+    .card-head { display: flex; align-items: flex-start; gap: 12px; padding: 18px 18px 14px; border-bottom: 1px solid var(--border); }
+    .card-head h2 { font-size: 17px; letter-spacing: -.01em; }
+    .card-head p { font-size: 12.5px; color: var(--text-muted); margin-top: 3px; }
+    .card-head .icon-btn { margin-left: auto; }
+    .card-filter { padding: 12px 18px; border-bottom: 1px solid var(--border); }
+    .card-filter input {
+      width: 100%; height: 34px; font: inherit; font-size: 13px; color: var(--text);
+      background: var(--bg-sub); border: 1px solid var(--border); border-radius: 8px; padding: 0 11px; outline: none;
+    }
+    .card-filter input:focus { border-color: var(--border-strong); background: var(--bg); }
+    .list { list-style: none; overflow-y: auto; padding: 6px 0; margin: 0; flex: 1; }
+    .row {
+      display: flex; align-items: flex-start; gap: 12px; padding: 12px 18px;
+      border-top: 1px solid var(--border); cursor: pointer; background: transparent; width: 100%;
+      font: inherit; color: inherit; text-align: left; border-left: 2px solid transparent;
+    }
+    .list li:first-child .row { border-top: 0; }
+    .row:hover { background: var(--bg-sub); }
+    .row.active { border-left-color: var(--text); background: var(--bg-sub); }
+    .row .idx { font-size: 11px; color: var(--text-faint); padding-top: 2px; width: 18px; flex: none; font-variant-numeric: tabular-nums; }
+    .row .body { min-width: 0; flex: 1; }
+    .row .title { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; }
+    .row .desc { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.5; }
+    .row .tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+    .row .tags i { font-style: normal; font-size: 10.5px; color: var(--text-faint); border: 1px solid var(--border); border-radius: 999px; padding: 0 6px; }
+    .row .tail { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+    .state { font-size: 10.5px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: var(--text-faint); border: 1px solid var(--border); border-radius: 999px; padding: 1px 7px; }
+    .state.ready { color: var(--text); border-color: var(--border-strong); }
+    .row.run { padding: 3px 9px; font-size: 11.5px; }
+    .card-foot { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-top: 1px solid var(--border); }
+    .card-foot p { font-size: 12px; color: var(--text-faint); }
+    .card-foot .btn { margin-left: auto; }
+    .empty { padding: 28px 18px; text-align: center; font-size: 13px; color: var(--text-muted); }
+
+
+    .debug-wrap { position: relative; }
+    .popover {
+      position: absolute; right: 0; top: calc(100% + 8px); z-index: 40; width: 280px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .18); padding: 12px; display: grid; gap: 8px;
+    }
+    .popover[hidden] { display: none; }
+    .popover h3 { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; }
+    .popover label { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-muted); cursor: pointer; }
+    .popover label input { accent-color: var(--text); width: 13px; height: 13px; }
+    .popover label span.key { margin-left: auto; font-size: 10.5px; color: var(--text-faint); }
+    .plugin-panels { display: grid; gap: 6px; }
+    .plugin-panel { display: grid; gap: 3px; padding: 8px 9px; border: 1px solid var(--border); border-radius: 7px; background: var(--bg); font: 500 12px/1.4 var(--mono); }
+    .plugin-row { display: flex; justify-content: space-between; gap: 10px; color: var(--text-dim); }
+    .plugin-row strong { color: var(--text); font-variant-numeric: tabular-nums; }
+    .popover .row-actions { display: flex; gap: 8px; padding-top: 4px; border-top: 1px solid var(--border); }
+    .popover .row-actions .btn { flex: 1; justify-content: center; }
+    .popover .note { font-size: 11px; color: var(--text-faint); }
+    .popover .note.warn { color: #b45309; }
+    [data-theme="dark"] .popover .note.warn { color: #f0b429; }
+
+    [data-lang="en"] [data-pl], [data-lang="pl"] [data-en] { display: none; }
+    @media (max-width: 720px) {
+      .head { gap: 10px; padding: 0 14px; }
+      .head-nav { display: none; }
+      .stage { padding: 14px 14px 22px; }
+      .brand span.tag { display: none; }
+      .bar-state #status { display: none; }
+      .card { max-height: calc(100vh - 24px); }
+    }
+  </style>
+</head>
+<body data-lang="pl">
+  <header class="head">
+    <a class="brand" href="/">
+      <svg width="24" height="24" viewBox="0 0 32 32"><rect class="logo-bg" width="32" height="32" rx="7" /><path class="logo-fg" d="M8 12.5l8-4 8 4v7l-8 4-8-4z" fill="none" stroke-width="1.6" stroke-linejoin="round" /><path class="logo-fg" d="M16 16.5v7M8 12.5l8 4 8-4" fill="none" stroke-width="1.1" /></svg>
+      Browser2DEngine
+      <span class="tag">v0.1</span>
+    </a>
+    <nav class="head-nav">
+      <a href="/" class="on" data-pl>Playground</a>
+      <a href="/" class="on" data-en>Playground</a>
+      <a href="/docs/" target="_blank" data-pl>Dokumentacja</a>
+      <a href="/docs/" target="_blank" data-en>Documentation</a>
+    </nav>
+    <div class="tools">
+      <div class="seg">
+        <button type="button" data-set-lang="pl">PL</button>
+        <button type="button" data-set-lang="en">EN</button>
+      </div>
+      <button type="button" class="icon-btn" id="theme" title="Motyw / Theme">◐</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <div class="frame" id="frame">
+      <div id="game-container"></div>
+      <div class="boot-error" id="boot-error">
+        <strong data-pl>Silnik nie wystartował</strong><strong data-en>The engine failed to start</strong>
+        <p data-pl>Serwer nie dostarczył modułu gry. Sprawdź wskazówkę poniżej i konsolę przeglądarki.</p>
+        <p data-en>The server did not deliver the game module. Read the hint below and the browser console.</p>
+        <code id="boot-error-detail"></code>
+        <p id="boot-error-hint" style="color:#7d848f"></p>
+        <div class="boot-actions">
+          <button type="button" class="btn" id="boot-retry">
+            <span data-pl>Spróbuj ponownie</span><span data-en>Try again</span>
+          </button>
+          <button type="button" class="btn" id="boot-copy">
+            <span data-pl>Kopiuj diagnostykę</span><span data-en>Copy diagnostics</span>
+          </button>
+          <button type="button" class="btn" id="boot-download">
+            <span data-pl>Pobierz raport</span><span data-en>Download report</span>
+          </button>
+        </div>
+        <details class="boot-diag" id="boot-diag">
+          <summary><span data-pl>Diagnostyka środowiska</span><span data-en>Environment diagnostics</span></summary>
+          <pre id="boot-diag-body"></pre>
+        </details>
+      </div>
+    </div>
+    <div class="bar">
+      <div class="bar-state">
+        <span class="dot"></span>
+        <strong id="active-example">Top-Down Demo</strong>
+        <span class="sep">·</span>
+        <span id="status">Inicjalizacja silnika…</span>
+      </div>
+      <div class="bar-actions">
+        <div class="debug-wrap">
+          <button type="button" class="btn" id="debug-toggle" aria-expanded="false" aria-controls="debug-panel">
+            <span data-pl>Debug</span><span data-en>Debug</span>
+            <span class="mono" style="color:var(--text-faint)">U</span>
+          </button>
+          <div class="popover" id="debug-panel" hidden>
+            <h3><span data-pl>Nakładki</span><span data-en>Overlays</span></h3>
+            <label><input type="checkbox" data-debug="overlay" /><span data-pl>Statystyki klatki</span><span data-en>Frame stats</span><span class="key">U</span></label>
+            <label><input type="checkbox" data-debug="logs" /><span data-pl>Panel logów</span><span data-en>Log panel</span><span class="key">L</span></label>
+            <h3><span data-pl>Widoki sceny</span><span data-en>Scene views</span></h3>
+            <label><input type="checkbox" data-debug="colliders" /><span data-pl>Collidery</span><span data-en>Colliders</span><span class="key">K</span></label>
+            <label><input type="checkbox" data-debug="grid" /><span data-pl>Siatka</span><span data-en>Grid</span><span class="key">G</span></label>
+            <label><input type="checkbox" data-debug="axes" /><span data-pl>Osie</span><span data-en>Axes</span><span class="key">X</span></label>
+            <label><input type="checkbox" data-debug="cameraBounds" /><span data-pl>Granice kamery</span><span data-en>Camera bounds</span><span class="key">B</span></label>
+            <p class="note" id="debug-support" hidden></p>
+            <h3><span data-pl>Raport</span><span data-en>Report</span></h3>
+            <div class="row-actions">
+              <button type="button" class="btn" id="debug-export"><span data-pl>Eksport JSON</span><span data-en>Export JSON</span></button>
+              <button type="button" class="btn" id="debug-copy"><span data-pl>Kopiuj</span><span data-en>Copy</span></button>
+            </div>
+            <p class="note" id="debug-status" hidden></p>
+            <div id="debug-plugins" hidden>
+              <h3><span data-pl>Pluginy</span><span data-en>Plugins</span></h3>
+              <p class="note" id="debug-plugin-summary" hidden></p>
+              <div class="plugin-panels" id="plugin-panels"></div>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn" id="open-examples">
+          <span data-pl>Przykłady</span><span data-en>Examples</span>
+          <span class="mono" style="color:var(--text-faint)">E</span>
+        </button>
+        <button type="button" class="btn" id="fullscreen">
+          <span data-pl>Pełny ekran</span><span data-en>Fullscreen</span>
+        </button>
+      </div>
+    </div>
+    <div class="hints">
+      <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span data-pl>ruch</span><span data-en>move</span></span>
+      <span><kbd>R</kbd><span data-pl>restart</span><span data-en>restart</span></span>
+      <span><kbd>M</kbd><span data-pl>menu</span><span data-en>menu</span></span>
+      <span><kbd>P</kbd><span data-pl>pauza</span><span data-en>pause</span></span>
+      <span><kbd>[</kbd><kbd>]</kbd><span data-pl>tempo</span><span data-en>speed</span></span>
+      <span><kbd>E</kbd><span data-pl>przykłady</span><span data-en>examples</span></span>
+      <span><kbd>U</kbd><span data-pl>debug</span><span data-en>debug</span></span>
+    </div>
+  </main>
+
+  <div class="modal" id="examples-modal" hidden>
+    <div class="backdrop" data-close></div>
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="examples-title">
+      <div class="card-head">
+        <div>
+          <h2 id="examples-title"><span data-pl>Przykłady</span><span data-en>Examples</span></h2>
+          <p><span data-pl>Gotowe scenariusze użycia silnika. Wybierz przykład, aby uruchomić go w playgroundzie.</span><span data-en>Ready-made engine scenarios. Pick one to run it in the playground.</span></p>
+        </div>
+        <button type="button" class="icon-btn" data-close aria-label="Zamknij / Close">×</button>
+      </div>
+      <div class="card-filter">
+        <input type="search" id="example-filter" autocomplete="off" placeholder="Filtruj przykłady…" />
+      </div>
+      <ul class="list" id="example-list"></ul>
+      <div class="card-foot">
+        <p><span data-pl>Kolejne przykłady pojawią się wraz z rozwojem silnika.</span><span data-en>More examples will appear as the engine grows.</span></p>
+        <button type="button" class="btn" data-close><span data-pl>Zamknij</span><span data-en>Close</span></button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var box = document.getElementById("boot-error");
+      var detail = document.getElementById("boot-error-detail");
+      var hintEl = document.getElementById("boot-error-hint");
+      var diagEl = document.getElementById("boot-diag-body");
+      var diagBox = document.getElementById("boot-diag");
+      var startedAt = Date.now();
+      var shown = false;
+      var lastError = "";
+
+      function meta(name) {
+        var element = document.querySelector('meta[name="' + name + '"]');
+        return element ? element.getAttribute("content") : "—";
+      }
+
+      function graphics() {
+        var canvas = document.createElement("canvas");
+        var result = { webgl2: false, webgl: false };
+        try {
+          result.webgl2 = !!(canvas.getContext && canvas.getContext("webgl2"));
+          result.webgl = result.webgl2 || !!(canvas.getContext && canvas.getContext("webgl"));
+        } catch (error) {
+          result.error = String(error && error.message);
+        }
+        return result;
+      }
+
+      function failedResources() {
+        var list = [];
+        try {
+          var entries = performance.getEntriesByType("resource") || [];
+          for (var i = 0; i < entries.length; i++) {
+            var entry = entries[i];
+            var status = entry.responseStatus;
+            if (status && status >= 400) list.push(entry.name + " → HTTP " + status);
+          }
+        } catch (error) {
+          return ["niedostępne / unavailable"];
+        }
+        return list;
+      }
+
+      function diagnostics() {
+        var gl = graphics();
+        var resources = failedResources();
+        return [
+          "build: " + meta("b2d-build"),
+          "mode: " + meta("b2d-mode"),
+          "base: " + meta("b2d-base"),
+          "url: " + window.location.href,
+          "time: " + new Date().toISOString(),
+          "boot: " + (Date.now() - startedAt) + " ms",
+          "protocol: " + window.location.protocol,
+          "secureContext: " + String(window.isSecureContext),
+          "crossOriginIsolated: " + String(window.crossOriginIsolated),
+          "userAgent: " + navigator.userAgent,
+          "viewport: " + window.innerWidth + "x" + window.innerHeight + " @" + (window.devicePixelRatio || 1),
+          "webgl2: " + String(gl.webgl2) + " · webgl: " + String(gl.webgl),
+          "canvas: " + String(!!document.querySelector("#game-container canvas")),
+          "resources: " + (resources.length ? resources.join(" | ") : "brak błędów"),
+          "error: " + (lastError || "—")
+        ].join("\n");
+      }
+
+      function render() {
+        if (diagEl) diagEl.textContent = diagnostics();
+      }
+
+      function fail(message, hint, stack) {
+        lastError = stack || message || lastError;
+        if (detail && message) detail.textContent = message;
+        if (hintEl && hint) hintEl.textContent = hint;
+        if (shown) {
+          render();
+          return;
+        }
+        shown = true;
+        box.classList.add("on");
+        var status = document.getElementById("status");
+        if (status) status.textContent = "błąd startu / boot error";
+        render();
+        if (diagBox) diagBox.open = true;
+      }
+
+      function probe(url) {
+        if (!url || typeof fetch !== "function") return;
+        fetch(url, { cache: "no-store" })
+          .then(function (response) {
+            var type = response.headers.get("content-type") || "brak";
+            fail(
+              "Moduł " + url + " → HTTP " + response.status + ", content-type: " + type,
+              response.ok
+                ? "Serwer odpowiada, ale przeglądarka odrzuciła moduł — sprawdź, czy podgląd nie jest osadzony w iframe bez dostępu do sieci. Otwórz adres w nowej karcie."
+                : "Serwer nie zwrócił modułu. Sprawdź base path w konfiguracji hostingu i uruchom npm run build ponownie."
+            );
+          })
+          .catch(function (error) {
+            fail(
+              "Moduł " + url + " jest nieosiągalny (" + error.message + ")",
+              "Brak połączenia z serwerem albo zła ścieżka bazowa. Sprawdź, czy pliki z dist/ są pod tym adresem."
+            );
+          });
+      }
+
+      function copyDiagnostics() {
+        var text = diagnostics();
+        var done = function () {
+          var button = document.getElementById("boot-copy");
+          if (!button) return;
+          var label = button.querySelector("[data-pl]");
+          if (!label) return;
+          label.textContent = "Skopiowano";
+          label.dataset.pl = "Skopiowano";
+          setTimeout(function () {
+            label.textContent = "Kopiuj diagnostykę";
+            label.dataset.pl = "Kopiuj diagnostykę";
+          }, 1600);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, done);
+          return;
+        }
+        var area = document.createElement("textarea");
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        try {
+          document.execCommand("copy");
+        } catch (error) {
+          void error;
+        }
+        document.body.removeChild(area);
+        done();
+      }
+
+      function downloadDiagnostics() {
+        var blob = new Blob([diagnostics()], { type: "text/plain;charset=utf-8" });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.href = url;
+        link.download = "b2d-diagnostics.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(function () {
+          URL.revokeObjectURL(url);
+        }, 2000);
+      }
+
+      var retry = document.getElementById("boot-retry");
+      if (retry) {
+        retry.addEventListener("click", function () {
+          var url = new URL(window.location.href);
+          url.searchParams.set("reload", String(Date.now()));
+          window.location.replace(url.toString());
+        });
+      }
+      var copy = document.getElementById("boot-copy");
+      if (copy) copy.addEventListener("click", copyDiagnostics);
+      var download = document.getElementById("boot-download");
+      if (download) download.addEventListener("click", downloadDiagnostics);
+      if (diagBox) diagBox.addEventListener("toggle", function () { if (diagBox.open) render(); });
+
+      window.__b2dBootFail = fail;
+      window.__b2dProbe = probe;
+      window.__b2dDiagnostics = diagnostics;
+
+      window.addEventListener("error", function (event) {
+        var target = event.target;
+        if (target && target.tagName === "SCRIPT") {
+          fail("Nie udało się załadować modułu: " + (target.src || "nieznany"));
+          probe(target.src);
+          return;
+        }
+        if (event.message) fail(event.message, undefined, event.error && event.error.stack);
+      }, true);
+
+      window.addEventListener("unhandledrejection", function (event) {
+        var reason = event.reason;
+        fail(String((reason && reason.message) || reason), undefined, reason && reason.stack);
+      });
+
+      setTimeout(function () {
+        var canvas = document.querySelector("#game-container canvas");
+        if (!canvas) {
+          fail(
+            "Brak canvasu po 8 s — moduł gry nie wykonał się.",
+            "Otwórz diagnostykę niżej i sprawdź pierwszą pozycję resources. Najczęściej to zły base path albo brak zależności."
+          );
+        }
+      }, 8000);
+    })();
+  </script>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
