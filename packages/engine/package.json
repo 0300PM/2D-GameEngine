@@ -1,0 +1,17 @@
+{
+  "name": "@browser2d/engine",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "phaser": "3.80.1"
+  },
+  "license": "MIT",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./version": "./src/version.ts",
+    "./stability": "./src/stability.ts"
+  },
+  "sideEffects": false
+}
