@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { migrateProject } from "../../packages/engine/src/project/Migrate";
 import { validateProject } from "../../packages/engine/src/project/Validate";
-import { checksum, exportProject, importProject, importProjectValue } from "../../packages/engine/src/project/Serialize";
+import {
+  checksum,
+  exportProject,
+  importProject,
+  importProjectValue
+} from "../../packages/engine/src/project/Serialize";
 import { createDefaultProject } from "../../packages/engine/src/project/Schema";
 
 const v1 = () => ({

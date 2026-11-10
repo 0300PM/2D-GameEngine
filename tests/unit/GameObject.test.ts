@@ -133,7 +133,7 @@ describe("GameObject components", () => {
 
   it("removes components and reports ownership", () => {
     const object = new GameObject("object");
-    object.add(new Health);
+    object.add(new Health());
 
     expect(object.has(Health)).toBe(true);
     expect(object.remove(Health)).toBe(true);

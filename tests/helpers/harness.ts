@@ -97,7 +97,13 @@ export class FakeRenderPort implements RenderPort {
   }
 }
 
-export type ColliderRecord = { kind: "collider" | "overlap"; a: ColliderPair; b: ColliderPair; handler?: CollisionHandler; destroyed: boolean };
+export type ColliderRecord = {
+  kind: "collider" | "overlap";
+  a: ColliderPair;
+  b: ColliderPair;
+  handler?: CollisionHandler;
+  destroyed: boolean;
+};
 
 export class FakePhysicsPort implements PhysicsPort {
   bounds: { x: number; y: number; width: number; height: number } | null = null;
@@ -162,7 +168,12 @@ export class FakePhysicsPort implements PhysicsPort {
     this.positions.clear();
   }
 
-  private track(kind: "collider" | "overlap", a: ColliderPair, b: ColliderPair, handler?: CollisionHandler): ColliderHandle {
+  private track(
+    kind: "collider" | "overlap",
+    a: ColliderPair,
+    b: ColliderPair,
+    handler?: CollisionHandler
+  ): ColliderHandle {
     const record: ColliderRecord = { kind, a, b, handler, destroyed: false };
     this.colliders.push(record);
     return {

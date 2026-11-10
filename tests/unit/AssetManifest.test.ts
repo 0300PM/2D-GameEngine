@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { AssetManifest, DEFAULT_SIZE_LIMITS, animationKey, formatBytes, isValidAssetId } from "../../packages/engine/src/assets/AssetManifest";
+import {
+  AssetManifest,
+  DEFAULT_SIZE_LIMITS,
+  animationKey,
+  formatBytes,
+  isValidAssetId
+} from "../../packages/engine/src/assets/AssetManifest";
 
 describe("AssetManifest", () => {
   it("accepts stable ids and rejects malformed ones", () => {
@@ -31,7 +37,9 @@ describe("AssetManifest", () => {
   });
 
   it("freezes descriptors so ids cannot drift at runtime", () => {
-    const manifest = new AssetManifest([{ id: "hero", type: "image", src: "/hero.png", animations: [{ key: "walk", frames: [0, 1] }] }]);
+    const manifest = new AssetManifest([
+      { id: "hero", type: "image", src: "/hero.png", animations: [{ key: "walk", frames: [0, 1] }] }
+    ]);
     const descriptor = manifest.get("hero")!;
     expect(Object.isFrozen(descriptor)).toBe(true);
     expect(Object.isFrozen(descriptor.animations)).toBe(true);
@@ -104,7 +112,14 @@ describe("AssetManifest", () => {
 
   it("exposes animations with namespaced keys", () => {
     const manifest = new AssetManifest([
-      { id: "hero", type: "spritesheet", src: "/h.png", frameWidth: 16, frameHeight: 16, animations: [{ key: "walk", frames: [0, 1] }] }
+      {
+        id: "hero",
+        type: "spritesheet",
+        src: "/h.png",
+        frameWidth: 16,
+        frameHeight: 16,
+        animations: [{ key: "walk", frames: [0, 1] }]
+      }
     ]);
     const animations = manifest.animations();
     expect(animations).toHaveLength(1);

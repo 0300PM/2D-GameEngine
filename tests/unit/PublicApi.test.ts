@@ -7,9 +7,22 @@ import { Component, SYSTEM_ORDER } from "../../packages/engine/src/core/Componen
 import { Transform } from "../../packages/engine/src/components/Transform";
 import { AssetManager } from "../../packages/engine/src/systems/AssetManager";
 import { EventBus } from "../../packages/engine/src/systems/EventBus";
-import type { RenderPort, PhysicsPort, CameraPort, InputPort, AssetBackend } from "../../packages/engine/src/core/ports";
+import type {
+  RenderPort,
+  PhysicsPort,
+  CameraPort,
+  InputPort,
+  AssetBackend
+} from "../../packages/engine/src/core/ports";
 import { inactiveCollider } from "../../packages/engine/src/core/ports";
-import { createHarness, FakeRenderPort, FakePhysicsPort, FakeCameraPort, FakeInputPort, FakeAssetBackend } from "../helpers/harness";
+import {
+  createHarness,
+  FakeRenderPort,
+  FakePhysicsPort,
+  FakeCameraPort,
+  FakeInputPort,
+  FakeAssetBackend
+} from "../helpers/harness";
 
 const ENGINE_ROOT = join(process.cwd(), "packages/engine/src");
 

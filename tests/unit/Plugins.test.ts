@@ -34,7 +34,10 @@ const createHost = (options: { engineVersion?: string; maxFailures?: number } = 
   return { host, events, logger };
 };
 
-const plugin = (patch: Partial<PluginManifest> = {}, activate: PluginDefinition["activate"] = () => undefined): PluginDefinition => ({
+const plugin = (
+  patch: Partial<PluginManifest> = {},
+  activate: PluginDefinition["activate"] = () => undefined
+): PluginDefinition => ({
   manifest: manifest(patch),
   activate
 });
@@ -68,11 +71,7 @@ describe("installation", () => {
 
   it("rejects unknown permissions", () => {
     const { host } = createHost();
-    expect(() =>
-      host.install(
-        plugin({ permissions: ["unknown" as never] })
-      )
-    ).toThrow(/Unknown permission/);
+    expect(() => host.install(plugin({ permissions: ["unknown" as never] }))).toThrow(/Unknown permission/);
   });
 
   it("rejects a duplicate id", () => {
@@ -149,9 +148,11 @@ describe("activation", () => {
     const { host, events } = createHost();
     const failed = vi.fn();
     events.on("plugin:failed", failed);
-    host.install(plugin({}, () => {
-      throw new Error("boom");
-    }));
+    host.install(
+      plugin({}, () => {
+        throw new Error("boom");
+      })
+    );
     await host.activate("demo");
     expect(host.get("demo")?.state).toBe("failed");
     expect(host.get("demo")?.lastError).toContain("boom");
@@ -211,9 +212,11 @@ describe("permissions", () => {
     const { host, events } = createHost();
     const received = vi.fn();
     events.on("plugin:demo:scored", received);
-    host.install(plugin({ permissions: ["events"] }, (ctx) => {
-      ctx.events.emit("scored", { points: 3 });
-    }));
+    host.install(
+      plugin({ permissions: ["events"] }, (ctx) => {
+        ctx.events.emit("scored", { points: 3 });
+      })
+    );
     await host.activate("demo");
     expect(received).toHaveBeenCalledWith({ points: 3 });
   });
@@ -221,9 +224,11 @@ describe("permissions", () => {
   it("subscribes to engine events", async () => {
     const { host, events } = createHost();
     const received = vi.fn();
-    host.install(plugin({ permissions: ["events"] }, (ctx) => {
-      ctx.events.on("engine:started", received);
-    }));
+    host.install(
+      plugin({ permissions: ["events"] }, (ctx) => {
+        ctx.events.on("engine:started", received);
+      })
+    );
     await host.activate("demo");
     events.emit("engine:started", { ok: true });
     expect(received).toHaveBeenCalledWith({ ok: true });
@@ -244,10 +249,12 @@ describe("systems", () => {
   it("ticks registered systems in order", async () => {
     const { host } = createHost();
     const calls: string[] = [];
-    host.install(plugin({ permissions: ["systems"] }, (ctx) => {
-      ctx.systems.register("late", () => void calls.push("late"), { order: 200 });
-      ctx.systems.register("early", () => void calls.push("early"), { order: 10 });
-    }));
+    host.install(
+      plugin({ permissions: ["systems"] }, (ctx) => {
+        ctx.systems.register("late", () => void calls.push("late"), { order: 200 });
+        ctx.systems.register("early", () => void calls.push("early"), { order: 10 });
+      })
+    );
     await host.activate("demo");
     host.update(0.016);
     expect(calls).toEqual(["early", "late"]);
@@ -258,12 +265,14 @@ describe("systems", () => {
     const disabled = vi.fn();
     events.on("plugin:system-disabled", disabled);
     let healthy = 0;
-    host.install(plugin({ permissions: ["systems"] }, (ctx) => {
-      ctx.systems.register("bad", () => {
-        throw new Error("tick failed");
-      });
-      ctx.systems.register("good", () => void (healthy += 1));
-    }));
+    host.install(
+      plugin({ permissions: ["systems"] }, (ctx) => {
+        ctx.systems.register("bad", () => {
+          throw new Error("tick failed");
+        });
+        ctx.systems.register("good", () => void (healthy += 1));
+      })
+    );
     await host.activate("demo");
     host.update(0.016);
     host.update(0.016);
@@ -276,11 +285,13 @@ describe("systems", () => {
 
   it("re-enables a disabled system on request", async () => {
     const { host } = createHost({ maxFailures: 1 });
-    host.install(plugin({ permissions: ["systems"] }, (ctx) => {
-      ctx.systems.register("bad", () => {
-        throw new Error("tick failed");
-      });
-    }));
+    host.install(
+      plugin({ permissions: ["systems"] }, (ctx) => {
+        ctx.systems.register("bad", () => {
+          throw new Error("tick failed");
+        });
+      })
+    );
     await host.activate("demo");
     host.update(0.016);
     expect(host.enableSystem("demo", "bad")).toBe(true);
@@ -290,14 +301,16 @@ describe("systems", () => {
   it("rejects duplicate system names per plugin", async () => {
     const { host } = createHost();
     let error: unknown = null;
-    host.install(plugin({ permissions: ["systems"] }, (ctx) => {
-      ctx.systems.register("dup", () => undefined);
-      try {
+    host.install(
+      plugin({ permissions: ["systems"] }, (ctx) => {
         ctx.systems.register("dup", () => undefined);
-      } catch (caught) {
-        error = caught;
-      }
-    }));
+        try {
+          ctx.systems.register("dup", () => undefined);
+        } catch (caught) {
+          error = caught;
+        }
+      })
+    );
     await host.activate("demo");
     expect((error as PluginError).code).toBe("duplicate-id");
   });

@@ -74,12 +74,16 @@ describe("Tween", () => {
   it("runs callbacks in order", () => {
     const events: string[] = [];
     const box = target(0);
-    const tween = Tween.to(box, { x: 10 }, {
-      duration: 0.5,
-      onStart: () => events.push("start"),
-      onUpdate: () => events.push("update"),
-      onComplete: () => events.push("complete")
-    });
+    const tween = Tween.to(
+      box,
+      { x: 10 },
+      {
+        duration: 0.5,
+        onStart: () => events.push("start"),
+        onUpdate: () => events.push("update"),
+        onComplete: () => events.push("complete")
+      }
+    );
     tween.update(0.5);
     expect(events[0]).toBe("start");
     expect(events[events.length - 1]).toBe("complete");

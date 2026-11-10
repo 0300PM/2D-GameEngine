@@ -1,8 +1,15 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-// @ts-expect-error — narzędzie CLI bez deklaracji typów
-import { applyVersion, bumpSemver, checkVersions, compareSemver, parseSemver, workspaceManifests } from "../../scripts/versions.mjs";
+import {
+  applyVersion,
+  bumpSemver,
+  checkVersions,
+  compareSemver,
+  parseSemver,
+  workspaceManifests
+  // @ts-expect-error — narzędzie CLI bez deklaracji typów
+} from "../../scripts/versions.mjs";
 
 const ROOT = process.cwd();
 const read = (path: string) => readFileSync(join(ROOT, path), "utf8");
@@ -95,5 +102,4 @@ describe("release contract", () => {
       expect(existsSync(join(process.cwd(), file)), file).toBe(true);
     }
   });
-
 });

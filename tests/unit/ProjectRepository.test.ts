@@ -53,7 +53,10 @@ describe("ProjectRepository", () => {
     await repository.save(project("Valid"));
     const before = await store.get("project:default");
 
-    const invalid = await repository.save({ ...project("Broken"), settings: { ...project("Broken").settings, width: 0 } });
+    const invalid = await repository.save({
+      ...project("Broken"),
+      settings: { ...project("Broken").settings, width: 0 }
+    });
     expect(invalid.ok).toBe(false);
     expect(invalid.errors.length).toBeGreaterThan(0);
     expect(await store.get("project:default")).toBe(before);

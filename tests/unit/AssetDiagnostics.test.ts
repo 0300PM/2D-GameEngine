@@ -10,7 +10,15 @@ describe("AssetManager.diagnose", () => {
     manager.registerMany([
       { id: "player", type: "image", src: "/player.png", bytes: 2048, license: { name: "CC0" } },
       { id: "coin", type: "image", src: "/coin.png", bytes: 1024, license: { name: "CC0" } },
-      { id: "spark", type: "spritesheet", src: "/spark.png", frameWidth: 16, frameHeight: 16, bytes: 8192, license: { name: "CC0" } }
+      {
+        id: "spark",
+        type: "spritesheet",
+        src: "/spark.png",
+        frameWidth: 16,
+        frameHeight: 16,
+        bytes: 8192,
+        license: { name: "CC0" }
+      }
     ]);
     return manager;
   };

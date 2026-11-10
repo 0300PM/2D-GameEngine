@@ -6,7 +6,10 @@ const heap = (memory: Memory, pointer: number, count: number): Float64Array =>
   new Float64Array(memory.buffer, pointer, count);
 
 const slots = {
-  time: new Map<number, { state: number[]; scale: number; maxDelta: number; fixedDelta: number; accumulator: number; maxSteps: number }>(),
+  time: new Map<
+    number,
+    { state: number[]; scale: number; maxDelta: number; fixedDelta: number; accumulator: number; maxSteps: number }
+  >(),
   random: new Map<number, { seed: number; state: number }>(),
   buffers: new Map<number, Float64Array>(),
   strings: new Map<number, string>()
@@ -117,7 +120,7 @@ export const installTestCore = (): void => {
       return steps;
     },
     b2d_random_seed: (slot: number, seed: number) => {
-      const normalised = (seed >>> 0) || 1;
+      const normalised = seed >>> 0 || 1;
       slots.random.set(slot, { seed: normalised, state: normalised });
     },
     b2d_random_state: (slot: number, state: number) => {

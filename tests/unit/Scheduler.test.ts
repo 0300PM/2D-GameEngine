@@ -67,9 +67,13 @@ describe("Scheduler", () => {
     const scheduler = new Scheduler();
     const onError = vi.fn();
     const after = vi.fn();
-    scheduler.delay(0.1, () => {
-      throw new Error("boom");
-    }, { onError });
+    scheduler.delay(
+      0.1,
+      () => {
+        throw new Error("boom");
+      },
+      { onError }
+    );
     scheduler.delay(0.1, after);
     scheduler.update(0.1);
     expect(onError).toHaveBeenCalledTimes(1);

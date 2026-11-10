@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_PROJECT_LIMITS, byteLength, findUnsafeKey, measureDepth, mergeLimits } from "../../packages/engine/src/project/Limits";
+import {
+  DEFAULT_PROJECT_LIMITS,
+  byteLength,
+  findUnsafeKey,
+  measureDepth,
+  mergeLimits
+} from "../../packages/engine/src/project/Limits";
 import { validateProject } from "../../packages/engine/src/project/Validate";
 import { importProject } from "../../packages/engine/src/project/Serialize";
 import type { ProjectFormatV2 } from "../../packages/engine/src/project/Schema";
@@ -31,9 +37,9 @@ describe("project limits", () => {
 
   it("rejects too many scenes", () => {
     const scene = { id: "main", objects: [] };
-    expect(codes(base({ scenes: [scene, { ...scene, id: "second" }, { ...scene, id: "third" }] }), { maxScenes: 2 })).toContain(
-      "limit-exceeded"
-    );
+    expect(
+      codes(base({ scenes: [scene, { ...scene, id: "second" }, { ...scene, id: "third" }] }), { maxScenes: 2 })
+    ).toContain("limit-exceeded");
   });
 
   it("rejects too many objects in one scene", () => {
@@ -47,7 +53,12 @@ describe("project limits", () => {
   });
 
   it("rejects too many assets", () => {
-    const assets = Array.from({ length: 3 }, (_, i) => ({ id: `a${i}`, type: "image" as const, src: `a${i}.png`, license: { name: "CC0" } }));
+    const assets = Array.from({ length: 3 }, (_, i) => ({
+      id: `a${i}`,
+      type: "image" as const,
+      src: `a${i}.png`,
+      license: { name: "CC0" }
+    }));
     expect(codes(base({ assets }), { maxAssets: 2 })).toContain("limit-exceeded");
   });
 
@@ -90,11 +101,15 @@ describe("project limits", () => {
 
   it("rejects too many actions", () => {
     const inputMap = Object.fromEntries(Array.from({ length: 4 }, (_, i) => [`a${i}`, ["KeyA"]]));
-    expect(codes(base({ settings: { ...base().settings, inputMap } }), { maxInputActions: 3 })).toContain("limit-exceeded");
+    expect(codes(base({ settings: { ...base().settings, inputMap } }), { maxInputActions: 3 })).toContain(
+      "limit-exceeded"
+    );
   });
 
   it("blocks prototype pollution keys", () => {
-    const payload = JSON.parse('{"formatVersion":2,"name":"x","settings":{},"assets":[],"scenes":[],"__proto__":{"polluted":true}}');
+    const payload = JSON.parse(
+      '{"formatVersion":2,"name":"x","settings":{},"assets":[],"scenes":[],"__proto__":{"polluted":true}}'
+    );
     const result = validateProject(payload);
     expect(result.valid).toBe(false);
     expect(result.errors[0]?.code).toBe("unsafe-key");

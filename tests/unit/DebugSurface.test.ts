@@ -86,7 +86,12 @@ describe("debug surface integration", () => {
     const { engine, render, physics } = build(false);
     (render as { setDebugLayer?: unknown }).setDebugLayer = undefined;
     (physics as { setDebugDraw?: unknown }).setDebugDraw = undefined;
-    expect(engine.getDebugViews().getSupport()).toEqual({ colliders: false, grid: false, axes: false, cameraBounds: false });
+    expect(engine.getDebugViews().getSupport()).toEqual({
+      colliders: false,
+      grid: false,
+      axes: false,
+      cameraBounds: false
+    });
   });
 
   it("captures engine logs in the buffer", () => {

@@ -7,9 +7,19 @@ import {
   MemoryStore,
   type SaveStore
 } from "../../packages/engine/src/save/SaveStore";
-import { PlayerSaveRepository, SaveCorruptionError, projectKey, saveKey } from "../../packages/engine/src/save/PlayerSave";
+import {
+  PlayerSaveRepository,
+  SaveCorruptionError,
+  projectKey,
+  saveKey
+} from "../../packages/engine/src/save/PlayerSave";
 
-const fakeFetch = (handlers: { get?: (key: string) => Response; put?: (key: string, body: string) => Response; del?: (key: string) => Response; list?: () => Response }) => {
+const fakeFetch = (handlers: {
+  get?: (key: string) => Response;
+  put?: (key: string, body: string) => Response;
+  del?: (key: string) => Response;
+  list?: () => Response;
+}) => {
   const calls: string[] = [];
   const impl = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
     const url = String(input);
@@ -59,7 +69,10 @@ describe("save stores", () => {
   it("talks to the save server over HTTP", async () => {
     const store = new Map<string, string>();
     const { impl, calls } = fakeFetch({
-      get: (key) => (store.has(key) ? new Response(JSON.stringify({ key, value: store.get(key) }), { status: 200 }) : new Response("{}", { status: 404 })),
+      get: (key) =>
+        store.has(key)
+          ? new Response(JSON.stringify({ key, value: store.get(key) }), { status: 200 })
+          : new Response("{}", { status: 404 }),
       put: (key, body) => {
         store.set(key, JSON.parse(body).value);
         return new Response("{}", { status: 200 });
@@ -85,7 +98,8 @@ describe("save stores", () => {
   });
 
   it("reports health of the save server", async () => {
-    const impl = (async () => new Response(JSON.stringify({ ok: true, backend: "postgres" }), { status: 200 })) as unknown as typeof fetch;
+    const impl = (async () =>
+      new Response(JSON.stringify({ ok: true, backend: "postgres" }), { status: 200 })) as unknown as typeof fetch;
     const http = new HttpStore({ endpoint: "http://localhost:8787", fetchImpl: impl });
     expect(await http.health()).toEqual({ ok: true, backend: "postgres" });
   });

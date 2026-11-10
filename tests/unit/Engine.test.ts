@@ -165,8 +165,12 @@ describe("Engine lifecycle without an adapter implementation", () => {
 
   it("rejects an invalid seed and fixed step config", () => {
     expect(() => new Engine({ parent: "host", seed: -1 }, createFakeAdapter().factory)).toThrow(/seed/);
-    expect(() => new Engine({ parent: "host", fixedStep: { hz: 0 } }, createFakeAdapter().factory)).toThrow(/fixedStep/);
-    expect(() => new Engine({ parent: "host", fixedStep: { hz: 60, maxSteps: 0 } }, createFakeAdapter().factory)).toThrow(/maxSteps/);
+    expect(() => new Engine({ parent: "host", fixedStep: { hz: 0 } }, createFakeAdapter().factory)).toThrow(
+      /fixedStep/
+    );
+    expect(
+      () => new Engine({ parent: "host", fixedStep: { hz: 60, maxSteps: 0 } }, createFakeAdapter().factory)
+    ).toThrow(/maxSteps/);
   });
 
   it("configures the fixed step on the clock", () => {

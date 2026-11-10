@@ -90,8 +90,13 @@ describe("DebugOverlay", () => {
 
   it("formats memory with a stable fallback", () => {
     expect(formatMemory(null)).toBe("n/a");
-    expect(formatMemory({ used: 4 * 1024 * 1024, total: 8 * 1024 * 1024, limit: 2048 * 1024 * 1024, source: "performance.memory" })).toBe(
-      "4.0 MB / 2048.0 MB"
-    );
+    expect(
+      formatMemory({
+        used: 4 * 1024 * 1024,
+        total: 8 * 1024 * 1024,
+        limit: 2048 * 1024 * 1024,
+        source: "performance.memory"
+      })
+    ).toBe("4.0 MB / 2048.0 MB");
   });
 });

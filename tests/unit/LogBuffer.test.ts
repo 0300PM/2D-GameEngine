@@ -152,7 +152,7 @@ describe("Logger sinks", () => {
     const buffer = new LogBuffer();
     logger.addSink(buffer.push);
     const child = logger.child("SceneManager");
-    child.info("Registered scene \"menu\"");
+    child.info('Registered scene "menu"');
     child.error("Boom", new Error("kaboom"));
     expect(buffer.size()).toBe(2);
     expect(buffer.filter({ text: "registered" })).toHaveLength(1);

@@ -51,7 +51,12 @@ const createSource = (overrides: Partial<DiagnosticsSource> = {}): DiagnosticsSo
     getWasm: () => "idle",
     getLogs: () => ({ total: 0, dropped: 0, counts: { debug: 0, info: 0, warn: 0, error: 0 } }),
     getPlugins: () => ({ total: 0, active: 0, failed: 0, systems: 0, importers: 0, panels: 0, audit: [] }),
-    getMemory: () => ({ used: 1024 * 1024, total: 2 * 1024 * 1024, limit: 64 * 1024 * 1024, source: "performance.memory" }),
+    getMemory: () => ({
+      used: 1024 * 1024,
+      total: 2 * 1024 * 1024,
+      limit: 64 * 1024 * 1024,
+      source: "performance.memory"
+    }),
     getEnvironment: () => ({
       userAgent: "vitest",
       language: "pl-PL",
@@ -84,7 +89,7 @@ describe("Diagnostics", () => {
     const parsed = JSON.parse(text) as { format: string; config: EngineConfig };
     expect(parsed.format).toBe("b2d-diagnostics");
     expect(parsed.config.parent).toBe("game");
-    expect(text).toContain("\n  \"config\"");
+    expect(text).toContain('\n  "config"');
   });
 
   it("raises findings for broken, unused and failed assets", () => {

@@ -14,12 +14,19 @@ describe("ProjectFormat", () => {
     expect(r.errors).toEqual([]);
   });
   it("detects missing name", () => {
-    const r = validateProjectConfig({ formatVersion: 1, game: { width: 100, height: 100, scaleMode: "fit", backgroundColor: "#000000" } });
+    const r = validateProjectConfig({
+      formatVersion: 1,
+      game: { width: 100, height: 100, scaleMode: "fit", backgroundColor: "#000000" }
+    });
     expect(r.valid).toBe(false);
     expect(r.errors.some((e) => e.includes("name"))).toBe(true);
   });
   it("detects unsupported version", () => {
-    const r = validateProjectConfig({ formatVersion: 99, name: "x", game: { width: 100, height: 100, scaleMode: "fit", backgroundColor: "#000000" } });
+    const r = validateProjectConfig({
+      formatVersion: 99,
+      name: "x",
+      game: { width: 100, height: 100, scaleMode: "fit", backgroundColor: "#000000" }
+    });
     expect(r.valid).toBe(false);
   });
   it("detects duplicate asset id", () => {
@@ -37,7 +44,12 @@ describe("ProjectFormat", () => {
     expect(r.errors.some((e) => e.includes("Duplicate"))).toBe(true);
   });
   it("parses JSON string", () => {
-    const json = JSON.stringify({ formatVersion: 1, name: "t", game: { width: 100, height: 100, scaleMode: "fit", backgroundColor: "#000000" }, assets: [] });
+    const json = JSON.stringify({
+      formatVersion: 1,
+      name: "t",
+      game: { width: 100, height: 100, scaleMode: "fit", backgroundColor: "#000000" },
+      assets: []
+    });
     const r = parseProjectJson(json);
     expect(r.valid).toBe(true);
   });

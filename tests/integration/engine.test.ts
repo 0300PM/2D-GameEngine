@@ -5,7 +5,9 @@ import { EventBus } from "../../packages/engine/src/systems/EventBus";
 import { Logger } from "../../packages/engine/src/systems/Logger";
 
 class DummyScene extends Scene {
-  constructor(id: string) { super(id); }
+  constructor(id: string) {
+    super(id);
+  }
   create(): void {}
 }
 

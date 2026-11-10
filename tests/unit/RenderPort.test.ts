@@ -101,7 +101,12 @@ describe("createRenderPort", () => {
 
   it("degrades gracefully when a layer has no animation support", () => {
     const layer = createLayer();
-    const minimal: RenderLayerLike = { create: layer.create, destroy: layer.destroy, sync: layer.sync, clear: layer.clear };
+    const minimal: RenderLayerLike = {
+      create: layer.create,
+      destroy: layer.destroy,
+      sync: layer.sync,
+      clear: layer.clear
+    };
     const port = createRenderPort(minimal, physics());
     const object = new GameObject("hero");
     expect(port.playAnimation?.(object, "hero:walk")).toBe(false);

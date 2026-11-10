@@ -24,7 +24,15 @@ const map = {
     }
   ],
   layers: [
-    { type: "tilelayer", name: "ground", width: 4, height: 2, visible: true, opacity: 1, data: [1, 2, 3, 4, 5, 6, 7, 8] },
+    {
+      type: "tilelayer",
+      name: "ground",
+      width: 4,
+      height: 2,
+      visible: true,
+      opacity: 1,
+      data: [1, 2, 3, 4, 5, 6, 7, 8]
+    },
     {
       type: "objectgroup",
       name: "spawns",

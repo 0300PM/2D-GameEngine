@@ -33,7 +33,16 @@ describe("feature stability registry", () => {
   });
 
   it("marks the core surface as stable", () => {
-    for (const id of ["engine-core", "scenes", "objects", "input", "physics", "saves", "project-format", "native-core"]) {
+    for (const id of [
+      "engine-core",
+      "scenes",
+      "objects",
+      "input",
+      "physics",
+      "saves",
+      "project-format",
+      "native-core"
+    ]) {
       expect(isStable(id), id).toBe(true);
     }
   });

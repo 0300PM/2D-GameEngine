@@ -15,7 +15,10 @@ class EmptyScene extends Scene {
 
 describe("DebugViews", () => {
   it("starts with every view disabled", () => {
-    const views = new DebugViews(() => null, () => null);
+    const views = new DebugViews(
+      () => null,
+      () => null
+    );
     expect(views.get()).toEqual(DEFAULT_DEBUG_VIEWS);
     expect(views.isActive()).toBe(false);
   });
@@ -65,7 +68,10 @@ describe("DebugViews", () => {
   });
 
   it("rejects non-positive grid sizes", () => {
-    const views = new DebugViews(() => null, () => null);
+    const views = new DebugViews(
+      () => null,
+      () => null
+    );
     views.set({ gridSize: 0 });
     expect(views.get().gridSize).toBe(DEFAULT_DEBUG_VIEWS.gridSize);
     views.set({ gridSize: -8 });

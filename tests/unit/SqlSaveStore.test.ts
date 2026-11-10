@@ -21,7 +21,10 @@ class FakeSqlClient implements SqlClient {
     this.failNext = sqlPart;
   }
 
-  async query<T = Record<string, unknown>>(sql: string, params: readonly unknown[] = []): Promise<{ rows: T[]; affectedRows?: number }> {
+  async query<T = Record<string, unknown>>(
+    sql: string,
+    params: readonly unknown[] = []
+  ): Promise<{ rows: T[]; affectedRows?: number }> {
     this.log.push({ sql, params });
     if (this.failNext && sql.includes(this.failNext)) {
       this.failNext = null;
@@ -66,7 +69,9 @@ describe("sql statements", () => {
   });
 
   it("quotes the configured table and rejects unsafe names", () => {
-    expect(sqlKeys({ dialect: "mysql", table: "game_saves" })).toBe("SELECT entry_key FROM game_saves ORDER BY entry_key");
+    expect(sqlKeys({ dialect: "mysql", table: "game_saves" })).toBe(
+      "SELECT entry_key FROM game_saves ORDER BY entry_key"
+    );
     expect(sqlClear({ dialect: "postgres", table: "saves" })).toBe("DELETE FROM saves");
     expect(() => sqlGet({ dialect: "postgres", table: "bad name" })).toThrow(/Invalid SQL table name/);
   });
@@ -114,8 +119,8 @@ describe("SqlSaveStore", () => {
 
   it("passes parameters in order", async () => {
     const { client, store } = build();
-    await store.set("project:default", "{\"a\":1}");
-    expect(client.log[0].params).toEqual(["project:default", "{\"a\":1}"]);
+    await store.set("project:default", '{"a":1}');
+    expect(client.log[0].params).toEqual(["project:default", '{"a":1}']);
   });
 
   it("propagates driver errors", async () => {

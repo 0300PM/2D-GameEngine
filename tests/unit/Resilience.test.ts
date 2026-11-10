@@ -41,7 +41,10 @@ describe("corrupted browser storage", () => {
   });
 
   it("rejects a save written by a newer build instead of half-reading it", async () => {
-    localStorage.setItem("b2d:save:demo:auto", JSON.stringify({ version: 99, playerId: "demo", slot: "auto", progress: {} }));
+    localStorage.setItem(
+      "b2d:save:demo:auto",
+      JSON.stringify({ version: 99, playerId: "demo", slot: "auto", progress: {} })
+    );
     const repository = new PlayerSaveRepository(new LocalStorageStore("b2d:"));
     const error = await repository.load("demo", "auto").catch((cause: unknown) => cause);
     expect(error).toBeInstanceOf(SaveCorruptionError);
@@ -72,7 +75,7 @@ describe("invalid project data", () => {
   });
 
   it("never throws on arbitrary text", () => {
-    for (const text of ["", "{", "[]", "null", "{\"formatVersion\": 1e999}"]) {
+    for (const text of ["", "{", "[]", "null", '{"formatVersion": 1e999}']) {
       expect(() => importProject(text)).not.toThrow();
     }
   });

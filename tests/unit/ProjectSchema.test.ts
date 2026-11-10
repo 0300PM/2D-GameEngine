@@ -31,7 +31,10 @@ describe("validateProject", () => {
   });
 
   it("validates settings fields", () => {
-    const result = validateProject({ ...base(), settings: { width: 0, height: -1, scaleMode: "stretch", backgroundColor: "red" } });
+    const result = validateProject({
+      ...base(),
+      settings: { width: 0, height: -1, scaleMode: "stretch", backgroundColor: "red" }
+    });
     expect(result.valid).toBe(false);
     const paths = result.errors.map((entry) => entry.path);
     expect(paths).toContain("settings.width");
