@@ -1,13 +1,13 @@
 import { defineConfig } from "vite";
 import { buildMeta } from "./config/build-meta";
 import { aliases, distDir, playgroundRoot, publicDir } from "./config/paths";
-import { docsAssets } from "./config/vite-docs";
+import { docsRedirect } from "./config/vite-docs";
 
 const base = process.env.B2D_BASE ?? "./";
 
 export default defineConfig({
   base,
-  plugins: [buildMeta({ base, mode: "production" }), docsAssets({ enabled: process.env.B2D_EMBED_DOCS !== "0" })],
+  plugins: [buildMeta({ base, mode: "production" }), docsRedirect()],
   root: playgroundRoot,
   publicDir,
   resolve: { alias: aliases },

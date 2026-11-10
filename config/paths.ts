@@ -4,7 +4,6 @@ import { fileURLToPath } from "node:url";
 export const repoRoot = fileURLToPath(new URL("..", import.meta.url)).replace(/\/$/, "");
 export const playgroundRoot = resolve(repoRoot, "apps/playground");
 export const publicDir = resolve(playgroundRoot, "public");
-export const docsDir = resolve(repoRoot, "docs");
 export const distDir = resolve(repoRoot, "dist");
 
 export const aliases = [

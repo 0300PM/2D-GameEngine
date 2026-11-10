@@ -1,10 +1,10 @@
 import { defineConfig } from "vite";
 import { buildMeta } from "./config/build-meta";
 import { aliases, playgroundRoot, publicDir } from "./config/paths";
-import { docsAssets } from "./config/vite-docs";
+import { docsRedirect } from "./config/vite-docs";
 
 export default defineConfig({
-  plugins: [docsAssets(), buildMeta({ base: "/", mode: "development" })],
+  plugins: [docsRedirect(), buildMeta({ base: "/", mode: "development" })],
   root: playgroundRoot,
   publicDir,
   server: {
