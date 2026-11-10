@@ -20,7 +20,7 @@ const searchText = (entry: LogEntry): string => {
   let rest = "";
   if (entry.data !== undefined) {
     try {
-      rest = typeof entry.data === "string" ? entry.data : JSON.stringify(entry.data) ?? "";
+      rest = typeof entry.data === "string" ? entry.data : (JSON.stringify(entry.data) ?? "");
     } catch (error) {
       rest = String(entry.data);
     }

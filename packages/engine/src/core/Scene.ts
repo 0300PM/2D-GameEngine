@@ -42,24 +42,27 @@ export type OriginOptions = {
   originY?: number;
 };
 
-export type SpriteOptions = Omit<GameObjectOptions, "render"> & OriginOptions & {
-  frame?: string;
-  displayWidth?: number;
-  displayHeight?: number;
-  fallbackRadius?: number;
-  fallbackColor?: number;
-};
+export type SpriteOptions = Omit<GameObjectOptions, "render"> &
+  OriginOptions & {
+    frame?: string;
+    displayWidth?: number;
+    displayHeight?: number;
+    fallbackRadius?: number;
+    fallbackColor?: number;
+  };
 
-export type TextOptions = Omit<GameObjectOptions, "render"> & OriginOptions & {
-  style?: TextStyleData;
-};
+export type TextOptions = Omit<GameObjectOptions, "render"> &
+  OriginOptions & {
+    style?: TextStyleData;
+  };
 
-export type ShapeOptions = Omit<GameObjectOptions, "render"> & OriginOptions & {
-  color: number;
-  strokeColor?: number;
-  strokeWidth?: number;
-  fillAlpha?: number;
-};
+export type ShapeOptions = Omit<GameObjectOptions, "render"> &
+  OriginOptions & {
+    color: number;
+    strokeColor?: number;
+    strokeWidth?: number;
+    fillAlpha?: number;
+  };
 
 export abstract class Scene {
   readonly id: string;
@@ -191,7 +194,10 @@ export abstract class Scene {
       if (!this.declaredAssets.includes(asset.id)) this.declaredAssets.push(asset.id);
     }
     this.ctx.assets.registerMany(assets);
-    this.ctx.assets.hold(this.id, assets.map((asset) => asset.id));
+    this.ctx.assets.hold(
+      this.id,
+      assets.map((asset) => asset.id)
+    );
   }
 
   playAnimation(target: GameObject | string, key: string, options: AnimationPlayOptions = {}): boolean {
@@ -251,7 +257,17 @@ export abstract class Scene {
     const { frame, displayWidth, displayHeight, fallbackRadius, fallbackColor, originX, originY, ...rest } = options;
     return this.createObject({
       ...rest,
-      render: { kind: "sprite", textureId, frame, displayWidth, displayHeight, fallbackRadius, fallbackColor, originX, originY }
+      render: {
+        kind: "sprite",
+        textureId,
+        frame,
+        displayWidth,
+        displayHeight,
+        fallbackRadius,
+        fallbackColor,
+        originX,
+        originY
+      }
     });
   }
 
@@ -497,9 +513,7 @@ export abstract class Scene {
           if (component.enabled) list.push(component);
         }
       }
-      list.sort(
-        (a, b) => phaseRank(a.phase) - phaseRank(b.phase) || a.order - b.order || a.sequence - b.sequence
-      );
+      list.sort((a, b) => phaseRank(a.phase) - phaseRank(b.phase) || a.order - b.order || a.sequence - b.sequence);
       this.componentCache = list;
       this.componentsDirty = false;
     }

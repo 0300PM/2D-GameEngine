@@ -56,7 +56,8 @@ export const sqlSet = (options: SqlStoreOptions): string => {
 export const sqlDelete = (options: SqlStoreOptions): string =>
   `DELETE FROM ${resolveTable(options.table)} WHERE entry_key = ${placeholder(options.dialect, 1)}`;
 
-export const sqlKeys = (options: SqlStoreOptions): string => `SELECT entry_key FROM ${resolveTable(options.table)} ORDER BY entry_key`;
+export const sqlKeys = (options: SqlStoreOptions): string =>
+  `SELECT entry_key FROM ${resolveTable(options.table)} ORDER BY entry_key`;
 
 export const sqlClear = (options: SqlStoreOptions): string => `DELETE FROM ${resolveTable(options.table)}`;
 
@@ -90,7 +91,10 @@ export class SqlSaveStore implements SaveStore {
 
   async keys(): Promise<string[]> {
     const result = await this.client.query<{ entry_key?: string }>(sqlKeys(this.options));
-    return result.rows.map((row) => String(row.entry_key ?? "")).filter(Boolean).sort();
+    return result.rows
+      .map((row) => String(row.entry_key ?? ""))
+      .filter(Boolean)
+      .sort();
   }
 
   async clear(): Promise<void> {

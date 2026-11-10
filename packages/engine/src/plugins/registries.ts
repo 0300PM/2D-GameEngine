@@ -32,7 +32,8 @@ export class SystemRegistry {
   private entries: SystemEntry[] = [];
 
   register(owner: string, name: string, handler: PluginSystemHandler, options: PluginSystemOptions = {}): void {
-    if (typeof name !== "string" || name.trim() === "") throw new PluginError("invalid-manifest", owner, "System needs a name");
+    if (typeof name !== "string" || name.trim() === "")
+      throw new PluginError("invalid-manifest", owner, "System needs a name");
     if (this.entries.some((entry) => entry.owner === owner && entry.name === name)) {
       throw new PluginError("duplicate-id", owner, `System "${name}" is already registered by "${owner}"`);
     }
@@ -112,13 +113,21 @@ export class ImporterRegistry {
     }
     const existing = this.importers.get(importer.id);
     if (existing) {
-      throw new PluginError("duplicate-importer", owner, `Importer "${importer.id}" is already registered by "${existing.owner}"`);
+      throw new PluginError(
+        "duplicate-importer",
+        owner,
+        `Importer "${importer.id}" is already registered by "${existing.owner}"`
+      );
     }
     for (const extension of importer.extensions) {
       const normalized = normalizeExtension(extension);
       for (const [id, entry] of this.importers) {
         if (entry.importer.extensions.some((candidate) => normalizeExtension(candidate) === normalized)) {
-          throw new PluginError("duplicate-importer", owner, `Extension "${normalized}" is already handled by importer "${id}"`);
+          throw new PluginError(
+            "duplicate-importer",
+            owner,
+            `Extension "${normalized}" is already handled by importer "${id}"`
+          );
         }
       }
     }
@@ -139,14 +148,20 @@ export class ImporterRegistry {
   find(extension: string): PluginImporter | null {
     const normalized = normalizeExtension(extension);
     for (const entry of this.importers.values()) {
-      if (entry.importer.extensions.some((candidate) => normalizeExtension(candidate) === normalized)) return entry.importer;
+      if (entry.importer.extensions.some((candidate) => normalizeExtension(candidate) === normalized))
+        return entry.importer;
     }
     return null;
   }
 
   import(extension: string, data: unknown, options?: Record<string, unknown>): unknown {
     const importer = this.find(extension);
-    if (!importer) throw new PluginError("unknown-importer", "engine", `No importer registered for ".${normalizeExtension(extension)}"`);
+    if (!importer)
+      throw new PluginError(
+        "unknown-importer",
+        "engine",
+        `No importer registered for ".${normalizeExtension(extension)}"`
+      );
     return importer.import(data, options);
   }
 
@@ -186,7 +201,11 @@ export class PanelRegistry {
     }
     const existing = this.panels.get(panel.id);
     if (existing) {
-      throw new PluginError("duplicate-panel", owner, `Panel "${panel.id}" is already registered by "${existing.owner}"`);
+      throw new PluginError(
+        "duplicate-panel",
+        owner,
+        `Panel "${panel.id}" is already registered by "${existing.owner}"`
+      );
     }
     this.panels.set(panel.id, { panel, owner, order: panel.order ?? 100, cleanup: null });
   }

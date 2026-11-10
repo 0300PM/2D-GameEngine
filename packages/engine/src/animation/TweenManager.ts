@@ -147,7 +147,9 @@ export class TweenSequence {
       onUpdate: step.onUpdate,
       onComplete: step.onComplete
     };
-    return step.mode === "from" ? Tween.from(step.target, step.props, options) : Tween.to(step.target, step.props, options);
+    return step.mode === "from"
+      ? Tween.from(step.target, step.props, options)
+      : Tween.to(step.target, step.props, options);
   }
 }
 

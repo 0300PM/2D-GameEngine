@@ -79,5 +79,4 @@ export const measureDepth = (value: unknown, depth = 0): number => {
 export const byteLength = (text: string): number =>
   typeof TextEncoder === "function" ? new TextEncoder().encode(text).length : text.length;
 
-export const isFiniteNumber = (value: unknown): value is number =>
-  typeof value === "number" && Number.isFinite(value);
+export const isFiniteNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);

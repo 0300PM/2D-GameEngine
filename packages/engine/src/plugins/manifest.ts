@@ -16,12 +16,7 @@ export type PluginManifest = {
 };
 
 export type PluginManifestIssueCode =
-  | "missing-field"
-  | "invalid-field"
-  | "invalid-id"
-  | "invalid-version"
-  | "invalid-range"
-  | "unknown-permission";
+  "missing-field" | "invalid-field" | "invalid-id" | "invalid-version" | "invalid-range" | "unknown-permission";
 
 export type PluginManifestIssue = {
   code: PluginManifestIssueCode;
@@ -57,7 +52,11 @@ export const validatePluginManifest = (raw: unknown): PluginManifestIssue[] => {
     issues.push({ code: "invalid-version", field: "version", message: `"${manifest.version}" is not a valid version` });
   }
   if (typeof manifest.engine === "string" && manifest.engine.trim() !== "" && !isValidRange(manifest.engine)) {
-    issues.push({ code: "invalid-range", field: "engine", message: `"${manifest.engine}" is not a valid version range` });
+    issues.push({
+      code: "invalid-range",
+      field: "engine",
+      message: `"${manifest.engine}" is not a valid version range`
+    });
   }
   for (const field of ["name", "description", "author"] as const) {
     const value = manifest[field];

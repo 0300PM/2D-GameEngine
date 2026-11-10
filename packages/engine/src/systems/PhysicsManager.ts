@@ -1,5 +1,13 @@
 import type { GameObject } from "../core/GameObject";
-import { inactiveCollider, type ColliderHandle, type ColliderPair, type CollisionHandler, type PhysicsPort, type PhysicsStats, type Vec2 } from "../core/ports";
+import {
+  inactiveCollider,
+  type ColliderHandle,
+  type ColliderPair,
+  type CollisionHandler,
+  type PhysicsPort,
+  type PhysicsStats,
+  type Vec2
+} from "../core/ports";
 
 export class PhysicsManager {
   private port: PhysicsPort | null = null;

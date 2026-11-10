@@ -1,7 +1,13 @@
 export { Engine } from "./core/Engine";
 export type { EngineOptions } from "./core/Engine";
 export { createEngine } from "./createEngine";
-export { defaultEngineConfig, resolveEngineConfig, validateEngineConfig, defaultInputMap, hexToNumber } from "./core/EngineConfig";
+export {
+  defaultEngineConfig,
+  resolveEngineConfig,
+  validateEngineConfig,
+  defaultInputMap,
+  hexToNumber
+} from "./core/EngineConfig";
 export type { EngineConfig, ScaleMode, PhysicsConfig, InputActionMap } from "./core/EngineConfig";
 export { Time } from "./core/Time";
 export type { TimeState } from "./core/Time";

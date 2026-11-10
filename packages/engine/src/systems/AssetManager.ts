@@ -186,7 +186,11 @@ export class AssetManager {
   }
 
   failuresList(): { id: string; src: string; message: string }[] {
-    return Array.from(this.failures.values()).map((error) => ({ id: error.assetId, src: error.src, message: error.message }));
+    return Array.from(this.failures.values()).map((error) => ({
+      id: error.assetId,
+      src: error.src,
+      message: error.message
+    }));
   }
 
   hold(owner: string, ids: readonly string[]): void {
@@ -350,12 +354,14 @@ export class AssetManager {
     const missing = options.references
       ? Array.from(new Set(this.manifest.checkReferences(options.references).map((issue) => issue.id ?? "unknown")))
       : [];
-    const unlicensed = Array.from(new Set(issues.filter((issue) => issue.code === "missing-license").map((issue) => issue.id ?? "unknown")));
+    const unlicensed = Array.from(
+      new Set(issues.filter((issue) => issue.code === "missing-license").map((issue) => issue.id ?? "unknown"))
+    );
     const failed = this.failuresList().map((failure) => failure.id);
     const used = options.usedIds ? new Set(options.usedIds) : null;
     const unused = used ? registered.filter((id) => !used.has(id)) : [];
-    const sizes = this.sizeReport().assets
-      .slice()
+    const sizes = this.sizeReport()
+      .assets.slice()
       .sort((a, b) => (b.bytes ?? -1) - (a.bytes ?? -1))
       .slice(0, 5)
       .map((entry) => ({ id: entry.id, bytes: entry.bytes }));
@@ -364,7 +370,9 @@ export class AssetManager {
 
   formatSizes(limits: Partial<AssetSizeLimits> = {}): string[] {
     const report = this.sizeReport(limits);
-    return report.assets.map((entry) => `${entry.id} (${entry.type}): ${entry.bytes === null ? "unknown" : formatBytes(entry.bytes)}`);
+    return report.assets.map(
+      (entry) => `${entry.id} (${entry.type}): ${entry.bytes === null ? "unknown" : formatBytes(entry.bytes)}`
+    );
   }
 
   clear(): void {

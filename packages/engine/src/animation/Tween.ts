@@ -44,7 +44,9 @@ const writePath = (target: TweenTarget, path: string, value: number): void => {
 const numericValue = (target: TweenTarget, path: string, mode: TweenMode): number => {
   const value = readPath(target, path);
   if (typeof value !== "number" || Number.isNaN(value)) {
-    throw new TypeError(`Cannot tween "${path}" ${mode === "to" ? "to" : "from"} a non-numeric value (${String(value)})`);
+    throw new TypeError(
+      `Cannot tween "${path}" ${mode === "to" ? "to" : "from"} a non-numeric value (${String(value)})`
+    );
   }
   return value;
 };

@@ -70,7 +70,11 @@ export class PhaserAssetBackend implements AssetBackend {
       this.hooks.onLoaded?.(descriptor.id);
     } catch (cause) {
       this.hooks.onError?.(
-        new AssetError(`Failed to decode inline audio "${descriptor.id}": ${(cause as Error).message}`, descriptor.id, descriptor.src.slice(0, 32))
+        new AssetError(
+          `Failed to decode inline audio "${descriptor.id}": ${(cause as Error).message}`,
+          descriptor.id,
+          descriptor.src.slice(0, 32)
+        )
       );
     }
   }
@@ -110,10 +114,21 @@ export class PhaserAssetBackend implements AssetBackend {
     if (!texture || texture.key === "__MISSING") return null;
     const source = texture.source?.[0];
     if (!source) return null;
-    return typeof source.width === "number" && typeof source.height === "number" ? source.width * source.height * 4 : null;
+    return typeof source.width === "number" && typeof source.height === "number"
+      ? source.width * source.height * 4
+      : null;
   }
 
-  registerAnimations(animations: readonly { key: string; textureId: string; frames: readonly (number | string)[]; frameRate?: number; repeat?: number; yoyo?: boolean }[]): void {
+  registerAnimations(
+    animations: readonly {
+      key: string;
+      textureId: string;
+      frames: readonly (number | string)[];
+      frameRate?: number;
+      repeat?: number;
+      yoyo?: boolean;
+    }[]
+  ): void {
     for (const animation of animations) {
       if (this.scene.anims.exists(animation.key)) continue;
       if (!this.scene.textures.exists(animation.textureId)) continue;

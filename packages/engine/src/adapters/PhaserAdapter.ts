@@ -127,7 +127,9 @@ class InternalPhaserScene extends Phaser.Scene {
     });
     this.load.on(Phaser.Loader.Events.FILE_COMPLETE, (key: string) => assets.markLoaded(String(key)));
     this.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR, (file: Phaser.Loader.File) => {
-      assets.reportError(new AssetError(`Failed to load asset "${file.key}" from "${file.src}"`, String(file.key), String(file.src)));
+      assets.reportError(
+        new AssetError(`Failed to load asset "${file.key}" from "${file.src}"`, String(file.key), String(file.src))
+      );
     });
     this.load.on(Phaser.Loader.Events.COMPLETE, () => this.registerAnimations());
     this.engineScene.preload?.();
@@ -139,7 +141,7 @@ class InternalPhaserScene extends Phaser.Scene {
     const backend = this.assetBackend;
     for (const descriptor of assets.getAll()) {
       if (assets.status(descriptor.id) === "ready") continue;
-      const present = backend?.has ? backend.has(descriptor.id) : backend?.hasTexture(descriptor.id) ?? false;
+      const present = backend?.has ? backend.has(descriptor.id) : (backend?.hasTexture(descriptor.id) ?? false);
       if (present) assets.markLoaded(descriptor.id);
     }
   }
@@ -223,7 +225,10 @@ class InternalPhaserScene extends Phaser.Scene {
     timeMgr.update(delta);
     profiler.end("engine.time");
     if (timeMgr.isClamped) {
-      this.deps.events.emit("engine:frameClamped", { rawDeltaTime: timeMgr.rawDeltaTime, deltaTime: timeMgr.deltaTime });
+      this.deps.events.emit("engine:frameClamped", {
+        rawDeltaTime: timeMgr.rawDeltaTime,
+        deltaTime: timeMgr.deltaTime
+      });
     }
     profiler.begin("engine.scheduler");
     this.deps.scheduler.update(timeMgr.deltaTime);
@@ -329,8 +334,14 @@ export class PhaserAdapter {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: this.config.width,
         height: this.config.height,
-        min: this.config.minWidth && this.config.minHeight ? { width: this.config.minWidth, height: this.config.minHeight } : undefined,
-        max: this.config.maxWidth && this.config.maxHeight ? { width: this.config.maxWidth, height: this.config.maxHeight } : undefined
+        min:
+          this.config.minWidth && this.config.minHeight
+            ? { width: this.config.minWidth, height: this.config.minHeight }
+            : undefined,
+        max:
+          this.config.maxWidth && this.config.maxHeight
+            ? { width: this.config.maxWidth, height: this.config.maxHeight }
+            : undefined
       },
       physics: this.config.physics.enabled
         ? {
@@ -507,7 +518,10 @@ export class PhaserAdapter {
     const onResize = (): void => {
       if (!this.isBooted() || !this.game) return;
       this.game.scale.refresh();
-      this.events.emit("engine:resize", { width: this.game.scale.gameSize.width, height: this.game.scale.gameSize.height });
+      this.events.emit("engine:resize", {
+        width: this.game.scale.gameSize.width,
+        height: this.game.scale.gameSize.height
+      });
     };
     window.addEventListener("resize", onResize);
     this.resizeObserver = new ResizeObserver(onResize);

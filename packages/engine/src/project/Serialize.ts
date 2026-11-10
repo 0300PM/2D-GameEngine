@@ -90,7 +90,11 @@ export const importProjectValue = (parsed: unknown, options: ProjectImportOption
   if (isEnvelope && (options.verifyChecksum ?? true)) {
     const actual = checksum(projectValue);
     if (actual !== expectedChecksum) {
-      return fail("checksum-mismatch", `Checksum mismatch: expected ${String(expectedChecksum)}, got ${actual}`, "checksum");
+      return fail(
+        "checksum-mismatch",
+        `Checksum mismatch: expected ${String(expectedChecksum)}, got ${actual}`,
+        "checksum"
+      );
     }
   }
 
@@ -107,5 +111,9 @@ export const importProjectValue = (parsed: unknown, options: ProjectImportOption
   }
 
   const validation = validateProject(candidate, { requireLicenses: options.requireLicenses, limits: options.limits });
-  return { ...validation, migrated, checksum: typeof expectedChecksum === "string" ? expectedChecksum : checksum(candidate) };
+  return {
+    ...validation,
+    migrated,
+    checksum: typeof expectedChecksum === "string" ? expectedChecksum : checksum(candidate)
+  };
 };

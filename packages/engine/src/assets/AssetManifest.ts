@@ -103,7 +103,8 @@ const issue = (
   path?: string
 ): AssetIssue => ({ code, severity, message, id, path });
 
-const isPositiveInt = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value) && value > 0;
+const isPositiveInt = (value: unknown): value is number =>
+  typeof value === "number" && Number.isInteger(value) && value > 0;
 
 export class AssetManifest {
   private assets = new Map<string, AssetDescriptor>();
@@ -226,25 +227,48 @@ export class AssetManifest {
       assets.push({ id: descriptor.id, type: descriptor.type, bytes });
       if (bytes === null) {
         unknownAssets += 1;
-        issues.push(issue("size-unknown", "warning", `Asset "${descriptor.id}" has no declared byte size`, descriptor.id, "bytes"));
+        issues.push(
+          issue("size-unknown", "warning", `Asset "${descriptor.id}" has no declared byte size`, descriptor.id, "bytes")
+        );
         continue;
       }
       totalBytes += bytes;
       byType[descriptor.type] = (byType[descriptor.type] ?? 0) + bytes;
-      if ((descriptor.type === "image" || descriptor.type === "spritesheet" || descriptor.type === "atlas") && bytes > resolved.imageBytes) {
+      if (
+        (descriptor.type === "image" || descriptor.type === "spritesheet" || descriptor.type === "atlas") &&
+        bytes > resolved.imageBytes
+      ) {
         issues.push(
-          issue("heavy-asset", "warning", `Image "${descriptor.id}" is ${formatBytes(bytes)} (limit ${formatBytes(resolved.imageBytes)})`, descriptor.id, "bytes")
+          issue(
+            "heavy-asset",
+            "warning",
+            `Image "${descriptor.id}" is ${formatBytes(bytes)} (limit ${formatBytes(resolved.imageBytes)})`,
+            descriptor.id,
+            "bytes"
+          )
         );
       }
       if (descriptor.type === "audio" && bytes > resolved.audioBytes) {
         issues.push(
-          issue("heavy-asset", "warning", `Audio "${descriptor.id}" is ${formatBytes(bytes)} (limit ${formatBytes(resolved.audioBytes)})`, descriptor.id, "bytes")
+          issue(
+            "heavy-asset",
+            "warning",
+            `Audio "${descriptor.id}" is ${formatBytes(bytes)} (limit ${formatBytes(resolved.audioBytes)})`,
+            descriptor.id,
+            "bytes"
+          )
         );
       }
     }
 
     if (totalBytes > resolved.totalBytes) {
-      issues.push(issue("heavy-asset", "warning", `Total asset budget ${formatBytes(totalBytes)} exceeds ${formatBytes(resolved.totalBytes)}`));
+      issues.push(
+        issue(
+          "heavy-asset",
+          "warning",
+          `Total asset budget ${formatBytes(totalBytes)} exceeds ${formatBytes(resolved.totalBytes)}`
+        )
+      );
     }
 
     return {
@@ -268,24 +292,53 @@ export class AssetManifest {
       for (const animation of descriptor.animations ?? []) {
         const key = animationKey(descriptor.id, animation.key);
         if (seen.has(key)) {
-          issues.push(issue("duplicate-animation", "error", `Duplicate animation key "${key}"`, descriptor.id, "animations"));
+          issues.push(
+            issue("duplicate-animation", "error", `Duplicate animation key "${key}"`, descriptor.id, "animations")
+          );
           continue;
         }
         seen.add(key);
         if (animation.key.trim() === "") {
-          issues.push(issue("invalid-field", "error", `Animation key of "${descriptor.id}" must not be empty`, descriptor.id, "animations"));
+          issues.push(
+            issue(
+              "invalid-field",
+              "error",
+              `Animation key of "${descriptor.id}" must not be empty`,
+              descriptor.id,
+              "animations"
+            )
+          );
         }
         if (animation.frames.length === 0) {
           issues.push(issue("invalid-field", "error", `Animation "${key}" has no frames`, descriptor.id, "animations"));
         }
-        if (animation.frameRate !== undefined && (typeof animation.frameRate !== "number" || animation.frameRate <= 0)) {
-          issues.push(issue("invalid-field", "error", `Animation "${key}" frameRate must be positive`, descriptor.id, "animations"));
+        if (
+          animation.frameRate !== undefined &&
+          (typeof animation.frameRate !== "number" || animation.frameRate <= 0)
+        ) {
+          issues.push(
+            issue(
+              "invalid-field",
+              "error",
+              `Animation "${key}" frameRate must be positive`,
+              descriptor.id,
+              "animations"
+            )
+          );
         }
         const frameCount = descriptor.frameCount;
         if (frameCount === undefined) continue;
         for (const frame of animation.frames) {
           if (typeof frame !== "number" || (frame >= 0 && frame < frameCount)) continue;
-          issues.push(issue("frame-out-of-range", "error", `Animation "${key}" frame ${frame} is outside 0..${frameCount - 1}`, descriptor.id, "animations"));
+          issues.push(
+            issue(
+              "frame-out-of-range",
+              "error",
+              `Animation "${key}" frame ${frame} is outside 0..${frameCount - 1}`,
+              descriptor.id,
+              "animations"
+            )
+          );
         }
       }
     }
@@ -299,7 +352,15 @@ export class AssetManifest {
       issues.push(issue("invalid-id", "error", `Asset id "${id}" must match ${ID_PATTERN.source}`, id, "id"));
     }
     if (!ASSET_TYPES.includes(descriptor.type)) {
-      issues.push(issue("unsupported-type", "error", `Asset "${id}" has unsupported type "${String(descriptor.type)}"`, id, "type"));
+      issues.push(
+        issue(
+          "unsupported-type",
+          "error",
+          `Asset "${id}" has unsupported type "${String(descriptor.type)}"`,
+          id,
+          "type"
+        )
+      );
     }
     if (typeof descriptor.src !== "string" || descriptor.src.trim() === "") {
       issues.push(issue("missing-src", "error", `Asset "${id}" has no src`, id, "src"));
@@ -311,7 +372,13 @@ export class AssetManifest {
     if (descriptor.type === "spritesheet") {
       if (!isPositiveInt(descriptor.frameWidth) || !isPositiveInt(descriptor.frameHeight)) {
         issues.push(
-          issue("invalid-field", "error", `Spritesheet "${id}" needs positive integer frameWidth and frameHeight`, id, "frameWidth")
+          issue(
+            "invalid-field",
+            "error",
+            `Spritesheet "${id}" needs positive integer frameWidth and frameHeight`,
+            id,
+            "frameWidth"
+          )
         );
       }
     }
@@ -319,7 +386,9 @@ export class AssetManifest {
       issues.push(issue("invalid-field", "error", `Atlas "${id}" needs atlasJson`, id, "atlasJson"));
     }
     if (descriptor.type === "font" && !descriptor.atlasJson) {
-      issues.push(issue("invalid-field", "error", `Bitmap font "${id}" needs atlasJson with the font data URL`, id, "atlasJson"));
+      issues.push(
+        issue("invalid-field", "error", `Bitmap font "${id}" needs atlasJson with the font data URL`, id, "atlasJson")
+      );
     }
     if (descriptor.bytes !== undefined && (typeof descriptor.bytes !== "number" || descriptor.bytes < 0)) {
       issues.push(issue("invalid-field", "error", `Asset "${id}" bytes must be a non-negative number`, id, "bytes"));
@@ -334,11 +403,16 @@ export class AssetManifest {
 
   private static normalize(descriptor: AssetDescriptor): AssetDescriptor {
     if (typeof descriptor !== "object" || descriptor === null) throw new Error("Asset descriptor must be an object");
-    if (typeof descriptor.id !== "string" || descriptor.id.trim() === "") throw new Error("Asset descriptor needs a non-empty id");
+    if (typeof descriptor.id !== "string" || descriptor.id.trim() === "")
+      throw new Error("Asset descriptor needs a non-empty id");
     if (typeof descriptor.src !== "string" || descriptor.src.trim() === "") {
       throw new Error(`Asset "${descriptor.id}" needs a non-empty src`);
     }
-    const animations = descriptor.animations ? Object.freeze(descriptor.animations.map((entry) => Object.freeze({ ...entry, frames: Object.freeze([...entry.frames]) }))) : undefined;
+    const animations = descriptor.animations
+      ? Object.freeze(
+          descriptor.animations.map((entry) => Object.freeze({ ...entry, frames: Object.freeze([...entry.frames]) }))
+        )
+      : undefined;
     const license = descriptor.license ? Object.freeze({ ...descriptor.license }) : undefined;
     return Object.freeze({ ...descriptor, animations, license });
   }

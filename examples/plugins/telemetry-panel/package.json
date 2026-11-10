@@ -8,5 +8,10 @@
   "peerDependencies": {
     "browser2d-engine": "^0.1.0"
   },
-  "keywords": ["browser2dengine", "plugin", "telemetry", "native"]
+  "keywords": [
+    "browser2dengine",
+    "plugin",
+    "telemetry",
+    "native"
+  ]
 }

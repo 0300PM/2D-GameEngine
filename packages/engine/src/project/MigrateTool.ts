@@ -75,7 +75,11 @@ export const migrateProjectText = (text: string, options: { requireLicenses?: bo
       from,
       to: CURRENT_PROJECT_VERSION,
       applied: migration.applied,
-      errors: validation.errors.map((problem) => ({ code: problem.code, path: problem.path, message: problem.message })),
+      errors: validation.errors.map((problem) => ({
+        code: problem.code,
+        path: problem.path,
+        message: problem.message
+      })),
       warnings: validation.warnings.map((warning) => `${warning.code} @ ${warning.path}: ${warning.message}`),
       text: null
     };
@@ -153,12 +157,17 @@ export const migrateSaveText = (text: string): TextMigrationResult => {
   };
 };
 
-export const migrateText = (text: string, kind: "project" | "save", options: { requireLicenses?: boolean } = {}): TextMigrationResult =>
-  kind === "project" ? migrateProjectText(text, options) : migrateSaveText(text);
+export const migrateText = (
+  text: string,
+  kind: "project" | "save",
+  options: { requireLicenses?: boolean } = {}
+): TextMigrationResult => (kind === "project" ? migrateProjectText(text, options) : migrateSaveText(text));
 
 export const formatMigrationSummary = (result: TextMigrationResult): string => {
   if (!result.ok) {
-    const details = result.errors.map((problem) => `${problem.code}${problem.path ? ` @ ${problem.path}` : ""}: ${problem.message}`);
+    const details = result.errors.map(
+      (problem) => `${problem.code}${problem.path ? ` @ ${problem.path}` : ""}: ${problem.message}`
+    );
     return `${result.kind}: FAILED (${details.join("; ")})`;
   }
   if (result.applied.length === 0) return `${result.kind}: version ${result.to}, migration not required`;

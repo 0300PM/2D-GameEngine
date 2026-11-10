@@ -75,8 +75,7 @@ export const EASINGS: Record<EasingName, EasingFunction> = {
   },
   circIn: (t) => 1 - Math.sqrt(1 - t * t),
   circOut: (t) => Math.sqrt(1 - (t - 1) ** 2),
-  circInOut: (t) =>
-    t < 0.5 ? (1 - Math.sqrt(1 - (2 * t) ** 2)) / 2 : (Math.sqrt(1 - (-2 * t + 2) ** 2) + 1) / 2,
+  circInOut: (t) => (t < 0.5 ? (1 - Math.sqrt(1 - (2 * t) ** 2)) / 2 : (Math.sqrt(1 - (-2 * t + 2) ** 2) + 1) / 2),
   backIn: (t) => {
     const c = 1.70158;
     return (c + 1) * t * t * t - c * t * t;

@@ -73,7 +73,11 @@ export class PluginHost {
       throw new PluginError("invalid-manifest", id, `Invalid manifest for "${id}": ${issues[0].message}`, issues);
     }
     if (typeof plugin.activate !== "function") {
-      throw new PluginError("invalid-manifest", plugin.manifest.id, `Plugin "${plugin.manifest.id}" needs an activate function`);
+      throw new PluginError(
+        "invalid-manifest",
+        plugin.manifest.id,
+        `Plugin "${plugin.manifest.id}" needs an activate function`
+      );
     }
     const manifest = normalizePluginManifest(plugin.manifest);
     if (this.records.has(manifest.id)) {
@@ -100,11 +104,14 @@ export class PluginHost {
       throw new PluginError("dependency-cycle", id, `Dependency cycle detected at plugin "${id}"`);
     }
     if (!satisfiesRange(this.engineVersion, record.manifest.engine)) {
-      this.fail(record, new PluginError(
-        "incompatible-engine",
-        id,
-        `Plugin "${id}@${record.manifest.version}" requires engine "${record.manifest.engine}" but ${this.engineVersion} is running`
-      ));
+      this.fail(
+        record,
+        new PluginError(
+          "incompatible-engine",
+          id,
+          `Plugin "${id}@${record.manifest.version}" requires engine "${record.manifest.engine}" but ${this.engineVersion} is running`
+        )
+      );
       return;
     }
     this.activating.add(id);
@@ -113,20 +120,33 @@ export class PluginHost {
       for (const [dependencyId, range] of dependencies) {
         const dependency = this.records.get(dependencyId);
         if (!dependency) {
-          this.fail(record, new PluginError("missing-dependency", id, `Plugin "${id}" needs "${dependencyId}" which is not installed`));
+          this.fail(
+            record,
+            new PluginError("missing-dependency", id, `Plugin "${id}" needs "${dependencyId}" which is not installed`)
+          );
           return;
         }
         if (!isValidRange(range) || !satisfiesRange(dependency.manifest.version, range)) {
-          this.fail(record, new PluginError(
-            "missing-dependency",
-            id,
-            `Plugin "${id}" needs "${dependencyId}@${range}" but "${dependency.manifest.version}" is installed`
-          ));
+          this.fail(
+            record,
+            new PluginError(
+              "missing-dependency",
+              id,
+              `Plugin "${id}" needs "${dependencyId}@${range}" but "${dependency.manifest.version}" is installed`
+            )
+          );
           return;
         }
         await this.activate(dependencyId);
         if (dependency.state !== "active") {
-          this.fail(record, new PluginError("missing-dependency", id, `Plugin "${id}" cannot start because "${dependencyId}" is not active`));
+          this.fail(
+            record,
+            new PluginError(
+              "missing-dependency",
+              id,
+              `Plugin "${id}" cannot start because "${dependencyId}" is not active`
+            )
+          );
           return;
         }
       }
@@ -199,7 +219,9 @@ export class PluginHost {
       }
       this.logger.error(`Plugin system "${failure.system}" of "${failure.owner}" failed: ${message}`);
       this.events.emit("plugin:system-error", { id: failure.owner, system: failure.system, message });
-      const disabled = this.systems.list().some((entry) => entry.owner === failure.owner && entry.name === failure.system && entry.disabled);
+      const disabled = this.systems
+        .list()
+        .some((entry) => entry.owner === failure.owner && entry.name === failure.system && entry.disabled);
       if (disabled) {
         this.logger.warn(`Plugin system "${failure.system}" of "${failure.owner}" disabled after repeated failures`);
         this.events.emit("plugin:system-disabled", { id: failure.owner, system: failure.system });
@@ -311,7 +333,10 @@ export class PluginHost {
       systems: granted.has("systems")
         ? {
             register: (name: string, handler: PluginSystemHandler, options?: PluginSystemOptions) =>
-              this.systems.register(manifest.id, name, handler, { maxFailures: options?.maxFailures ?? this.maxFailures, order: options?.order })
+              this.systems.register(manifest.id, name, handler, {
+                maxFailures: options?.maxFailures ?? this.maxFailures,
+                order: options?.order
+              })
           }
         : this.denied(manifest.id, "systems", "systems", ["register"]),
       importers: granted.has("importers")
@@ -320,10 +345,18 @@ export class PluginHost {
       panels: granted.has("panels")
         ? { register: (panel) => this.panels.register(manifest.id, panel) }
         : this.denied(manifest.id, "panels", "panels", ["register"]),
-      events: granted.has("events") ? this.createEvents(manifest.id) : this.denied(manifest.id, "events", "events", ["on", "emit"]),
-      scenes: granted.has("scenes") ? this.services.scenes : this.denied(manifest.id, "scenes", "scenes", ["list", "activeId"]),
-      assets: granted.has("assets") ? this.services.assets : this.denied(manifest.id, "assets", "assets", ["ids", "isLoaded"]),
-      storage: granted.has("storage") ? this.createStorage(manifest.id) : this.denied(manifest.id, "storage", "storage", ["get", "set", "remove", "keys", "clear"]),
+      events: granted.has("events")
+        ? this.createEvents(manifest.id)
+        : this.denied(manifest.id, "events", "events", ["on", "emit"]),
+      scenes: granted.has("scenes")
+        ? this.services.scenes
+        : this.denied(manifest.id, "scenes", "scenes", ["list", "activeId"]),
+      assets: granted.has("assets")
+        ? this.services.assets
+        : this.denied(manifest.id, "assets", "assets", ["ids", "isLoaded"]),
+      storage: granted.has("storage")
+        ? this.createStorage(manifest.id)
+        : this.denied(manifest.id, "storage", "storage", ["get", "set", "remove", "keys", "clear"]),
       onDispose: (disposer: () => void) => {
         if (typeof disposer === "function") record.disposers.push(disposer);
       }
@@ -343,7 +376,11 @@ export class PluginHost {
     const prefix = `${this.services.storagePrefix ?? DEFAULT_STORAGE_PREFIX}${id}:`;
     const backend = (): Storage | null => {
       try {
-        return this.services.storage ? this.services.storage() : typeof localStorage === "undefined" ? null : localStorage;
+        return this.services.storage
+          ? this.services.storage()
+          : typeof localStorage === "undefined"
+            ? null
+            : localStorage;
       } catch (error) {
         void error;
         return null;
@@ -371,7 +408,12 @@ export class PluginHost {
     };
   }
 
-  private denied<T extends object>(id: string, permission: PluginPermission, capability: string, methods: readonly string[]): T {
+  private denied<T extends object>(
+    id: string,
+    permission: PluginPermission,
+    capability: string,
+    methods: readonly string[]
+  ): T {
     const target: Record<string, unknown> = {};
     for (const method of methods) {
       target[method] = () => {

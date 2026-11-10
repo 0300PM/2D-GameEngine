@@ -174,7 +174,12 @@ export class AudioManager {
 
   playMusic(assetId: string, options: PlaySoundOptions = {}): SoundHandle | null {
     this.stopMusic();
-    const handle = this.play(assetId, { ...options, channel: "music", loop: options.loop ?? true, owner: options.owner ?? "music" });
+    const handle = this.play(assetId, {
+      ...options,
+      channel: "music",
+      loop: options.loop ?? true,
+      owner: options.owner ?? "music"
+    });
     this.music = handle;
     return handle;
   }

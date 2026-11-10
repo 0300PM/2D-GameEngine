@@ -1,0 +1,18 @@
+{
+  "name": "@b2d/example-determinism",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser2DEngine example: fixed-step determinism digests for the TypeScript core",
+  "main": "src/digest.ts",
+  "types": "src/digest.ts",
+  "peerDependencies": {
+    "browser2d-engine": "^0.1.0"
+  },
+  "keywords": [
+    "browser2dengine",
+    "example",
+    "determinism",
+    "fixed-step"
+  ]
+}

@@ -1,11 +1,5 @@
 import { AssetManifest, isValidAssetId, type AssetDescriptor } from "../assets/AssetManifest";
-import {
-  findUnsafeKey,
-  isFiniteNumber,
-  measureDepth,
-  mergeLimits,
-  type ProjectLimits
-} from "./Limits";
+import { findUnsafeKey, isFiniteNumber, measureDepth, mergeLimits, type ProjectLimits } from "./Limits";
 import {
   CURRENT_PROJECT_VERSION,
   SCALE_MODES,
@@ -55,7 +49,8 @@ const KNOWN_OBJECT_KEYS = new Set([
   "unknownFields"
 ]);
 
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
 
 const pickUnknown = (input: Record<string, unknown>, known: Set<string>): Record<string, unknown> | undefined => {
   const extra: Record<string, unknown> = {};
@@ -121,7 +116,12 @@ export const validateProject = (input: unknown, options: ProjectValidateOptions 
     errors.push(issue("missing-field", "error", "Project name must be a non-empty string", "name"));
   } else if (input["name"].length > limits.maxStringLength) {
     errors.push(
-      issue("limit-exceeded", "error", `Project name is ${input["name"].length} characters, limit ${limits.maxStringLength}`, "name")
+      issue(
+        "limit-exceeded",
+        "error",
+        `Project name is ${input["name"].length} characters, limit ${limits.maxStringLength}`,
+        "name"
+      )
     );
   }
 
@@ -135,7 +135,12 @@ export const validateProject = (input: unknown, options: ProjectValidateOptions 
       if (!object.asset) continue;
       if (!assetIds.has(object.asset)) {
         errors.push(
-          issue("broken-reference", "error", `Scene "${scene.id}" object "${object.id}" references unknown asset "${object.asset}"`, `scenes.${scene.id}.objects.${object.id}.asset`)
+          issue(
+            "broken-reference",
+            "error",
+            `Scene "${scene.id}" object "${object.id}" references unknown asset "${object.asset}"`,
+            `scenes.${scene.id}.objects.${object.id}.asset`
+          )
         );
       }
     }
@@ -154,24 +159,44 @@ export const validateProject = (input: unknown, options: ProjectValidateOptions 
   return { valid: true, errors, warnings, project };
 };
 
-const validateSettings = (input: unknown, errors: ProjectIssue[], limits: ProjectLimits): ProjectSettings | undefined => {
+const validateSettings = (
+  input: unknown,
+  errors: ProjectIssue[],
+  limits: ProjectLimits
+): ProjectSettings | undefined => {
   if (!isRecord(input)) {
     errors.push(issue("missing-field", "error", "Missing required field: settings", "settings"));
     return undefined;
   }
-  if (typeof input["width"] !== "number" || input["width"] <= 0) errors.push(issue("invalid-field", "error", "settings.width must be a positive number", "settings.width"));
-  if (typeof input["height"] !== "number" || input["height"] <= 0) errors.push(issue("invalid-field", "error", "settings.height must be a positive number", "settings.height"));
+  if (typeof input["width"] !== "number" || input["width"] <= 0)
+    errors.push(issue("invalid-field", "error", "settings.width must be a positive number", "settings.width"));
+  if (typeof input["height"] !== "number" || input["height"] <= 0)
+    errors.push(issue("invalid-field", "error", "settings.height must be a positive number", "settings.height"));
   if (!SCALE_MODES.includes(input["scaleMode"] as never)) {
-    errors.push(issue("invalid-field", "error", `settings.scaleMode must be one of ${SCALE_MODES.join(", ")}`, "settings.scaleMode"));
+    errors.push(
+      issue(
+        "invalid-field",
+        "error",
+        `settings.scaleMode must be one of ${SCALE_MODES.join(", ")}`,
+        "settings.scaleMode"
+      )
+    );
   }
   if (typeof input["backgroundColor"] !== "string" || !HEX_COLOR.test(input["backgroundColor"])) {
-    errors.push(issue("invalid-field", "error", "settings.backgroundColor must be a hex colour", "settings.backgroundColor"));
+    errors.push(
+      issue("invalid-field", "error", "settings.backgroundColor must be a hex colour", "settings.backgroundColor")
+    );
   }
   if (input["seed"] !== undefined && (!Number.isInteger(input["seed"]) || (input["seed"] as number) < 0)) {
     errors.push(issue("invalid-field", "error", "settings.seed must be a non-negative integer", "settings.seed"));
   }
-  if (input["fixedStepHz"] !== undefined && (typeof input["fixedStepHz"] !== "number" || input["fixedStepHz"] <= 0 || input["fixedStepHz"] > 480)) {
-    errors.push(issue("invalid-field", "error", "settings.fixedStepHz must be between 1 and 480", "settings.fixedStepHz"));
+  if (
+    input["fixedStepHz"] !== undefined &&
+    (typeof input["fixedStepHz"] !== "number" || input["fixedStepHz"] <= 0 || input["fixedStepHz"] > 480)
+  ) {
+    errors.push(
+      issue("invalid-field", "error", "settings.fixedStepHz must be between 1 and 480", "settings.fixedStepHz")
+    );
   }
   if (input["inputMap"] !== undefined) {
     const map = input["inputMap"];
@@ -181,22 +206,41 @@ const validateSettings = (input: unknown, errors: ProjectIssue[], limits: Projec
       const actions = Object.keys(map);
       if (actions.length > limits.maxInputActions) {
         errors.push(
-          issue("limit-exceeded", "error", `inputMap has ${actions.length} actions, limit ${limits.maxInputActions}`, "settings.inputMap")
+          issue(
+            "limit-exceeded",
+            "error",
+            `inputMap has ${actions.length} actions, limit ${limits.maxInputActions}`,
+            "settings.inputMap"
+          )
         );
       }
       for (const action of actions) {
         if (action.length > limits.maxIdLength) {
-          errors.push(issue("limit-exceeded", "error", `Action name "${action.slice(0, 16)}…" is too long`, `settings.inputMap.${action}`));
+          errors.push(
+            issue(
+              "limit-exceeded",
+              "error",
+              `Action name "${action.slice(0, 16)}…" is too long`,
+              `settings.inputMap.${action}`
+            )
+          );
           continue;
         }
         const keys = map[action];
         if (!Array.isArray(keys) || keys.some((key) => typeof key !== "string")) {
-          errors.push(issue("invalid-type", "error", "Action bindings must be an array of strings", `settings.inputMap.${action}`));
+          errors.push(
+            issue("invalid-type", "error", "Action bindings must be an array of strings", `settings.inputMap.${action}`)
+          );
           continue;
         }
         if (keys.length > limits.maxKeysPerAction) {
           errors.push(
-            issue("limit-exceeded", "error", `Action "${action}" has ${keys.length} keys, limit ${limits.maxKeysPerAction}`, `settings.inputMap.${action}`)
+            issue(
+              "limit-exceeded",
+              "error",
+              `Action "${action}" has ${keys.length} keys, limit ${limits.maxKeysPerAction}`,
+              `settings.inputMap.${action}`
+            )
           );
         }
       }
@@ -237,7 +281,9 @@ const validateAssets = (
     return [];
   }
   if (input.length > limits.maxAssets) {
-    errors.push(issue("limit-exceeded", "error", `Project has ${input.length} assets, limit ${limits.maxAssets}`, "assets"));
+    errors.push(
+      issue("limit-exceeded", "error", `Project has ${input.length} assets, limit ${limits.maxAssets}`, "assets")
+    );
   }
   const manifest = new AssetManifest();
   const assets: AssetDescriptor[] = [];
@@ -247,11 +293,15 @@ const validateAssets = (
       return;
     }
     if (typeof entry["id"] !== "string" || !isValidAssetId(entry["id"])) {
-      errors.push(issue("invalid-field", "error", "Asset id must be a lower-case stable identifier", `assets[${index}].id`));
+      errors.push(
+        issue("invalid-field", "error", "Asset id must be a lower-case stable identifier", `assets[${index}].id`)
+      );
       return;
     }
     if (entry["id"].length > limits.maxIdLength) {
-      errors.push(issue("limit-exceeded", "error", `Asset id "${entry["id"].slice(0, 16)}…" is too long`, `assets[${index}].id`));
+      errors.push(
+        issue("limit-exceeded", "error", `Asset id "${entry["id"].slice(0, 16)}…" is too long`, `assets[${index}].id`)
+      );
       return;
     }
     if (manifest.has(entry["id"])) {
@@ -289,7 +339,9 @@ const validateScenes = (
     return [];
   }
   if (input.length > limits.maxScenes) {
-    errors.push(issue("limit-exceeded", "error", `Project has ${input.length} scenes, limit ${limits.maxScenes}`, "scenes"));
+    errors.push(
+      issue("limit-exceeded", "error", `Project has ${input.length} scenes, limit ${limits.maxScenes}`, "scenes")
+    );
   }
   const seenScenes = new Set<string>();
   const scenes: SceneDefinition[] = [];
@@ -301,7 +353,9 @@ const validateScenes = (
     }
     const id = entry["id"];
     if (typeof id !== "string" || !SCENE_ID_PATTERN.test(id)) {
-      errors.push(issue("invalid-field", "error", "Scene id must match a lower-case identifier", `scenes[${index}].id`));
+      errors.push(
+        issue("invalid-field", "error", "Scene id must match a lower-case identifier", `scenes[${index}].id`)
+      );
       return;
     }
     if (seenScenes.has(id)) {
@@ -310,14 +364,21 @@ const validateScenes = (
     }
     seenScenes.add(id);
     if (id.length > limits.maxIdLength) {
-      errors.push(issue("limit-exceeded", "error", `Scene id "${id.slice(0, 16)}…" is too long`, `scenes[${index}].id`));
+      errors.push(
+        issue("limit-exceeded", "error", `Scene id "${id.slice(0, 16)}…" is too long`, `scenes[${index}].id`)
+      );
       return;
     }
     const objects = validateObjects(id, entry["objects"], errors, limits);
     objectTotal += objects.length;
     if (objects.length > limits.maxObjectsPerScene) {
       errors.push(
-        issue("limit-exceeded", "error", `Scene "${id}" has ${objects.length} objects, limit ${limits.maxObjectsPerScene}`, `scenes.${id}.objects`)
+        issue(
+          "limit-exceeded",
+          "error",
+          `Scene "${id}" has ${objects.length} objects, limit ${limits.maxObjectsPerScene}`,
+          `scenes.${id}.objects`
+        )
       );
     }
     scenes.push({
@@ -329,7 +390,14 @@ const validateScenes = (
     });
   });
   if (objectTotal > limits.maxObjects) {
-    errors.push(issue("limit-exceeded", "error", `Project has ${objectTotal} objects in total, limit ${limits.maxObjects}`, "scenes"));
+    errors.push(
+      issue(
+        "limit-exceeded",
+        "error",
+        `Project has ${objectTotal} objects in total, limit ${limits.maxObjects}`,
+        "scenes"
+      )
+    );
   }
   return scenes;
 };
@@ -342,55 +410,96 @@ const validateObjects = (
 ): SceneObjectDefinition[] => {
   if (input === undefined) return [];
   if (!Array.isArray(input)) {
-    errors.push(issue("invalid-type", "error", `Scene "${sceneId}" objects must be an array`, `scenes.${sceneId}.objects`));
+    errors.push(
+      issue("invalid-type", "error", `Scene "${sceneId}" objects must be an array`, `scenes.${sceneId}.objects`)
+    );
     return [];
   }
   const seen = new Set<string>();
   const objects: SceneObjectDefinition[] = [];
   input.forEach((entry, index) => {
     if (!isRecord(entry)) {
-      errors.push(issue("invalid-type", "error", "Object entry must be an object", `scenes.${sceneId}.objects[${index}]`));
+      errors.push(
+        issue("invalid-type", "error", "Object entry must be an object", `scenes.${sceneId}.objects[${index}]`)
+      );
       return;
     }
     const id = entry["id"];
     if (typeof id !== "string" || id.trim() === "") {
-      errors.push(issue("missing-field", "error", "Object needs a non-empty id", `scenes.${sceneId}.objects[${index}].id`));
+      errors.push(
+        issue("missing-field", "error", "Object needs a non-empty id", `scenes.${sceneId}.objects[${index}].id`)
+      );
       return;
     }
     if (seen.has(id)) {
-      errors.push(issue("duplicate-id", "error", `Duplicate object id "${id}" in scene "${sceneId}"`, `scenes.${sceneId}.objects[${index}].id`));
+      errors.push(
+        issue(
+          "duplicate-id",
+          "error",
+          `Duplicate object id "${id}" in scene "${sceneId}"`,
+          `scenes.${sceneId}.objects[${index}].id`
+        )
+      );
       return;
     }
     seen.add(id);
     if (entry["body"] !== undefined && entry["body"] !== "dynamic" && entry["body"] !== "static") {
-      errors.push(issue("invalid-field", "error", "body must be \"dynamic\" or \"static\"", `scenes.${sceneId}.objects.${id}.body`));
+      errors.push(
+        issue("invalid-field", "error", 'body must be "dynamic" or "static"', `scenes.${sceneId}.objects.${id}.body`)
+      );
     }
     if (id.length > limits.maxIdLength) {
-      errors.push(issue("limit-exceeded", "error", `Object id "${id.slice(0, 16)}…" is too long`, `scenes.${sceneId}.objects[${index}].id`));
+      errors.push(
+        issue(
+          "limit-exceeded",
+          "error",
+          `Object id "${id.slice(0, 16)}…" is too long`,
+          `scenes.${sceneId}.objects[${index}].id`
+        )
+      );
       return;
     }
     if (typeof entry["text"] === "string" && entry["text"].length > limits.maxStringLength) {
       errors.push(
-        issue("limit-exceeded", "error", `Object text is ${entry["text"].length} characters, limit ${limits.maxStringLength}`, `scenes.${sceneId}.objects.${id}.text`)
+        issue(
+          "limit-exceeded",
+          "error",
+          `Object text is ${entry["text"].length} characters, limit ${limits.maxStringLength}`,
+          `scenes.${sceneId}.objects.${id}.text`
+        )
       );
     }
     const tags = entry["tags"];
     if (tags !== undefined) {
       if (!Array.isArray(tags) || tags.some((tag) => typeof tag !== "string")) {
-        errors.push(issue("invalid-type", "error", "tags must be an array of strings", `scenes.${sceneId}.objects.${id}.tags`));
+        errors.push(
+          issue("invalid-type", "error", "tags must be an array of strings", `scenes.${sceneId}.objects.${id}.tags`)
+        );
       } else if (tags.length > limits.maxTagsPerObject) {
         errors.push(
-          issue("limit-exceeded", "error", `Object has ${tags.length} tags, limit ${limits.maxTagsPerObject}`, `scenes.${sceneId}.objects.${id}.tags`)
+          issue(
+            "limit-exceeded",
+            "error",
+            `Object has ${tags.length} tags, limit ${limits.maxTagsPerObject}`,
+            `scenes.${sceneId}.objects.${id}.tags`
+          )
         );
       }
     }
     const properties = entry["properties"];
     if (properties !== undefined) {
       if (!isRecord(properties)) {
-        errors.push(issue("invalid-type", "error", "properties must be an object", `scenes.${sceneId}.objects.${id}.properties`));
+        errors.push(
+          issue("invalid-type", "error", "properties must be an object", `scenes.${sceneId}.objects.${id}.properties`)
+        );
       } else if (Object.keys(properties).length > limits.maxPropertiesPerRecord) {
         errors.push(
-          issue("limit-exceeded", "error", `Object has ${Object.keys(properties).length} properties, limit ${limits.maxPropertiesPerRecord}`, `scenes.${sceneId}.objects.${id}.properties`)
+          issue(
+            "limit-exceeded",
+            "error",
+            `Object has ${Object.keys(properties).length} properties, limit ${limits.maxPropertiesPerRecord}`,
+            `scenes.${sceneId}.objects.${id}.properties`
+          )
         );
       }
     }
@@ -398,16 +507,29 @@ const validateObjects = (
       const value = entry[key];
       if (value === undefined) continue;
       if (!isFiniteNumber(value)) {
-        errors.push(issue("invalid-field", "error", `${key} must be a finite number`, `scenes.${sceneId}.objects.${id}.${key}`));
+        errors.push(
+          issue("invalid-field", "error", `${key} must be a finite number`, `scenes.${sceneId}.objects.${id}.${key}`)
+        );
         continue;
       }
-      if ((key === "x" || key === "y" || key === "width" || key === "height") && Math.abs(value) > limits.maxCoordinate) {
+      if (
+        (key === "x" || key === "y" || key === "width" || key === "height") &&
+        Math.abs(value) > limits.maxCoordinate
+      ) {
         errors.push(
-          issue("limit-exceeded", "error", `${key} ${value} exceeds the supported range ±${limits.maxCoordinate}`, `scenes.${sceneId}.objects.${id}.${key}`)
+          issue(
+            "limit-exceeded",
+            "error",
+            `${key} ${value} exceeds the supported range ±${limits.maxCoordinate}`,
+            `scenes.${sceneId}.objects.${id}.${key}`
+          )
         );
       }
     }
-    objects.push({ ...(entry as unknown as SceneObjectDefinition), unknownFields: pickUnknown(entry, KNOWN_OBJECT_KEYS) });
+    objects.push({
+      ...(entry as unknown as SceneObjectDefinition),
+      unknownFields: pickUnknown(entry, KNOWN_OBJECT_KEYS)
+    });
   });
   return objects;
 };

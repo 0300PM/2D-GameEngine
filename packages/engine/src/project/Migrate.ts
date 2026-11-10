@@ -55,7 +55,12 @@ export type MigrationResult = {
   original?: Record<string, unknown>;
 };
 
-const error = (message: string, path = ""): ProjectIssue => ({ code: "unsupported-version", severity: "error", message, path });
+const error = (message: string, path = ""): ProjectIssue => ({
+  code: "unsupported-version",
+  severity: "error",
+  message,
+  path
+});
 
 export const migrateProject = (input: unknown): MigrationResult => {
   const record = toRecord(input);
@@ -65,18 +70,30 @@ export const migrateProject = (input: unknown): MigrationResult => {
   }
   const rawVersion = record["formatVersion"];
   if (typeof rawVersion !== "number" || !Number.isInteger(rawVersion)) {
-    return { ok: false, applied, errors: [error("Project has no numeric formatVersion", "formatVersion")], original: record };
+    return {
+      ok: false,
+      applied,
+      errors: [error("Project has no numeric formatVersion", "formatVersion")],
+      original: record
+    };
   }
   if (rawVersion > CURRENT_PROJECT_VERSION) {
     return {
       ok: false,
       applied,
-      errors: [error(`Project format ${rawVersion} is newer than supported ${CURRENT_PROJECT_VERSION}`, "formatVersion")],
+      errors: [
+        error(`Project format ${rawVersion} is newer than supported ${CURRENT_PROJECT_VERSION}`, "formatVersion")
+      ],
       original: record
     };
   }
   if (rawVersion < 1) {
-    return { ok: false, applied, errors: [error(`Project format ${rawVersion} is not supported`, "formatVersion")], original: record };
+    return {
+      ok: false,
+      applied,
+      errors: [error(`Project format ${rawVersion} is not supported`, "formatVersion")],
+      original: record
+    };
   }
 
   let current = record;
@@ -110,13 +127,25 @@ export const migrateProject = (input: unknown): MigrationResult => {
   for (const asset of assets) {
     const descriptor = toRecord(asset);
     if (!descriptor || typeof descriptor["id"] !== "string" || typeof descriptor["src"] !== "string") {
-      return { ok: false, applied, errors: [error("Migrated project has an invalid asset entry", "assets")], original: record };
+      return {
+        ok: false,
+        applied,
+        errors: [error("Migrated project has an invalid asset entry", "assets")],
+        original: record
+      };
     }
     if (manifest.has(descriptor["id"])) {
       return {
         ok: false,
         applied,
-        errors: [{ code: "duplicate-id", severity: "error", message: `Duplicate asset id "${descriptor["id"]}"`, path: "assets" }],
+        errors: [
+          {
+            code: "duplicate-id",
+            severity: "error",
+            message: `Duplicate asset id "${descriptor["id"]}"`,
+            path: "assets"
+          }
+        ],
         original: record
       };
     }

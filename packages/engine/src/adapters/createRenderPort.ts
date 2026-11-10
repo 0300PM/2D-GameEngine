@@ -3,13 +3,24 @@ import type { AnimationPlayOptions, AnimationState, DebugLayerState, PhysicsPort
 
 export type RenderLayerLike = Pick<
   RenderPort,
-  "create" | "destroy" | "sync" | "clear" | "playAnimation" | "stopAnimation" | "pauseAnimation" | "setFrame" | "getAnimationState"
+  | "create"
+  | "destroy"
+  | "sync"
+  | "clear"
+  | "playAnimation"
+  | "stopAnimation"
+  | "pauseAnimation"
+  | "setFrame"
+  | "getAnimationState"
 > & {
   setDebugLayer?(state: DebugLayerState): void;
   drawDebug?(): void;
 };
 
-export const createRenderPort = (layer: RenderLayerLike, physics: Pick<PhysicsPort, "attachBody" | "detachBody" | "clear">): RenderPort => ({
+export const createRenderPort = (
+  layer: RenderLayerLike,
+  physics: Pick<PhysicsPort, "attachBody" | "detachBody" | "clear">
+): RenderPort => ({
   create(object: GameObject): void {
     layer.create(object);
     if (object.body) physics.attachBody(object);

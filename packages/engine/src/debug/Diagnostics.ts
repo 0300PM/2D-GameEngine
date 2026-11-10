@@ -89,7 +89,7 @@ const environment = (): DiagnosticsEnvironment => {
       width: scope?.innerWidth ?? 0,
       height: scope?.innerHeight ?? 0
     },
-    hardwareConcurrency: typeof navigator === "undefined" ? null : navigator.hardwareConcurrency ?? null,
+    hardwareConcurrency: typeof navigator === "undefined" ? null : (navigator.hardwareConcurrency ?? null),
     online: typeof navigator === "undefined" ? true : navigator.onLine,
     secureContext: scope?.isSecureContext ?? false
   };
@@ -210,13 +210,25 @@ export class Diagnostics {
       findings.push({ code: "audio-detached", severity: "warn", message: "Audio backend is not attached" });
     }
     if (report.audio.attached && !report.audio.unlocked) {
-      findings.push({ code: "audio-locked", severity: "info", message: "Audio is waiting for a user gesture (autoplay policy)" });
+      findings.push({
+        code: "audio-locked",
+        severity: "info",
+        message: "Audio is waiting for a user gesture (autoplay policy)"
+      });
     }
     if (report.audio.pending > 0) {
-      findings.push({ code: "audio-pending", severity: "info", message: `${report.audio.pending} sound request(s) queued until unlock` });
+      findings.push({
+        code: "audio-pending",
+        severity: "info",
+        message: `${report.audio.pending} sound request(s) queued until unlock`
+      });
     }
     if (report.wasm === "failed") {
-      findings.push({ code: "wasm-failed", severity: "warn", message: "WASM module failed to load, TypeScript fallback in use" });
+      findings.push({
+        code: "wasm-failed",
+        severity: "warn",
+        message: "WASM module failed to load, TypeScript fallback in use"
+      });
     }
     if (report.profiler.fps > 0 && report.profiler.fps < 45) {
       findings.push({

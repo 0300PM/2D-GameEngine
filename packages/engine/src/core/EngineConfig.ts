@@ -37,15 +37,15 @@ export const defaultInputMap: InputActionMap = {
   "move-down": ["ArrowDown", "KeyS"],
   "move-left": ["ArrowLeft", "KeyA"],
   "move-right": ["ArrowRight", "KeyD"],
-  "interact": ["Space", "KeyE"],
-  "jump": ["Space"],
-  "restart": ["KeyR"],
-  "menu": ["KeyM", "Escape"],
-  "pause": ["KeyP"],
+  interact: ["Space", "KeyE"],
+  jump: ["Space"],
+  restart: ["KeyR"],
+  menu: ["KeyM", "Escape"],
+  pause: ["KeyP"],
   "time-slow": ["BracketLeft"],
   "time-fast": ["BracketRight"],
   "time-normal": ["Backslash"],
-  "mute": ["KeyN"]
+  mute: ["KeyN"]
 };
 
 export const defaultEngineConfig: Omit<EngineConfig, "parent"> = {
@@ -70,7 +70,10 @@ export function validateEngineConfig(config: Partial<EngineConfig>): string[] {
   if (config.width !== undefined && (typeof config.width !== "number" || config.width <= 0 || config.width > 8192)) {
     errors.push("width must be a positive number between 1 and 8192");
   }
-  if (config.height !== undefined && (typeof config.height !== "number" || config.height <= 0 || config.height > 8192)) {
+  if (
+    config.height !== undefined &&
+    (typeof config.height !== "number" || config.height <= 0 || config.height > 8192)
+  ) {
     errors.push("height must be a positive number between 1 and 8192");
   }
   if (config.backgroundColor !== undefined && !/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(config.backgroundColor)) {
@@ -89,11 +92,18 @@ export function validateEngineConfig(config: Partial<EngineConfig>): string[] {
     if (typeof config.fixedStep.hz !== "number" || config.fixedStep.hz <= 0 || config.fixedStep.hz > 480) {
       errors.push("fixedStep.hz must be a number between 1 and 480");
     }
-    if (config.fixedStep.maxSteps !== undefined && (!Number.isInteger(config.fixedStep.maxSteps) || config.fixedStep.maxSteps < 1)) {
+    if (
+      config.fixedStep.maxSteps !== undefined &&
+      (!Number.isInteger(config.fixedStep.maxSteps) || config.fixedStep.maxSteps < 1)
+    ) {
       errors.push("fixedStep.maxSteps must be a positive integer");
     }
   }
-  if (config.parent === undefined || config.parent === null || (typeof config.parent === "string" && config.parent.trim() === "")) {
+  if (
+    config.parent === undefined ||
+    config.parent === null ||
+    (typeof config.parent === "string" && config.parent.trim() === "")
+  ) {
     errors.push("parent is required and must be a non-empty element id or HTMLElement");
   }
   return errors;

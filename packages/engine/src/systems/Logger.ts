@@ -89,7 +89,8 @@ export class Logger {
     if (!isLevelAtLeast(level, this.minLevel)) return;
     const entry: LogEntry = {
       id: nextEntryId++,
-      time: typeof performance !== "undefined" && typeof performance.now === "function" ? performance.now() : Date.now(),
+      time:
+        typeof performance !== "undefined" && typeof performance.now === "function" ? performance.now() : Date.now(),
       level,
       context: this.context,
       message,
@@ -107,7 +108,14 @@ export class Logger {
 
   private consoleWrite(level: LogLevel, message: string, data?: unknown): void {
     const formatted = `[${new Date().toISOString()}] [${level.toUpperCase()}] [${this.context}] ${message}`;
-    const target = level === "debug" ? console.debug : level === "info" ? console.info : level === "warn" ? console.warn : console.error;
+    const target =
+      level === "debug"
+        ? console.debug
+        : level === "info"
+          ? console.info
+          : level === "warn"
+            ? console.warn
+            : console.error;
     if (data !== undefined) target.call(console, formatted, data);
     else target.call(console, formatted);
   }

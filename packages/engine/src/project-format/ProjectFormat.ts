@@ -36,8 +36,12 @@ export function validateProjectConfig(input: unknown): { valid: boolean; errors:
   } else {
     if (typeof game["width"] !== "number" || game["width"] <= 0) errors.push("game.width must be a positive number");
     if (typeof game["height"] !== "number" || game["height"] <= 0) errors.push("game.height must be a positive number");
-    if (!["fit", "fill", "fixed", "expand"].includes(game["scaleMode"] as string)) errors.push("game.scaleMode must be one of fit, fill, fixed, expand");
-    if (typeof game["backgroundColor"] !== "string" || !/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(game["backgroundColor"] as string)) {
+    if (!["fit", "fill", "fixed", "expand"].includes(game["scaleMode"] as string))
+      errors.push("game.scaleMode must be one of fit, fill, fixed, expand");
+    if (
+      typeof game["backgroundColor"] !== "string" ||
+      !/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(game["backgroundColor"] as string)
+    ) {
       errors.push("game.backgroundColor must be a valid hex color");
     }
   }
@@ -48,11 +52,14 @@ export function validateProjectConfig(input: unknown): { valid: boolean; errors:
       const seen = new Set<string>();
       for (let i = 0; i < assets.length; i++) {
         const a = assets[i] as Record<string, unknown>;
-        if (typeof a["id"] !== "string" || (a["id"] as string).trim() === "") errors.push(`assets[${i}].id must be a non-empty string`);
+        if (typeof a["id"] !== "string" || (a["id"] as string).trim() === "")
+          errors.push(`assets[${i}].id must be a non-empty string`);
         else if (seen.has(a["id"] as string)) errors.push(`Duplicate asset id "${a["id"] as string}" at assets[${i}]`);
         else seen.add(a["id"] as string);
-        if (!["image", "audio", "json", "spritesheet", "atlas"].includes(a["type"] as string)) errors.push(`assets[${i}].type must be one of image, audio, json, spritesheet, atlas`);
-        if (typeof a["src"] !== "string" || (a["src"] as string).trim() === "") errors.push(`assets[${i}].src must be a non-empty string`);
+        if (!["image", "audio", "json", "spritesheet", "atlas"].includes(a["type"] as string))
+          errors.push(`assets[${i}].type must be one of image, audio, json, spritesheet, atlas`);
+        if (typeof a["src"] !== "string" || (a["src"] as string).trim() === "")
+          errors.push(`assets[${i}].src must be a non-empty string`);
       }
     }
   }

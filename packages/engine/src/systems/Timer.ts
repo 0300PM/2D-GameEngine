@@ -15,7 +15,11 @@ export class Timer {
   }
 
   interval(seconds: number, callback: () => void, options: TimerOptions & { repeat?: number } = {}): TaskHandle {
-    return this.scheduler.interval(seconds, callback, { owner: this.owner, repeat: options.repeat, onError: options.onError });
+    return this.scheduler.interval(seconds, callback, {
+      owner: this.owner,
+      repeat: options.repeat,
+      onError: options.onError
+    });
   }
 
   cancel(handle: TaskHandle): void {

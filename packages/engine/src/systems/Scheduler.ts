@@ -104,8 +104,15 @@ export class Scheduler {
     return this.reportedErrors;
   }
 
-  private schedule(seconds: number, callback: () => void, options: TaskOptions, repeat: number, repeatable: boolean): TaskHandle {
-    if (!Number.isFinite(seconds) || seconds < 0) throw new Error(`Timer interval must be a finite non-negative number, got ${seconds}`);
+  private schedule(
+    seconds: number,
+    callback: () => void,
+    options: TaskOptions,
+    repeat: number,
+    repeatable: boolean
+  ): TaskHandle {
+    if (!Number.isFinite(seconds) || seconds < 0)
+      throw new Error(`Timer interval must be a finite non-negative number, got ${seconds}`);
     const task: Task = {
       id: this.nextId++,
       owner: options.owner ?? "",

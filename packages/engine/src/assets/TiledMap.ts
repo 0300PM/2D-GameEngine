@@ -63,9 +63,15 @@ export type TiledSpawn = {
   properties: Record<string, string | number | boolean>;
 };
 
-const issue = (message: string, path?: string): AssetIssue => ({ code: "invalid-field", severity: "error", message, path });
+const issue = (message: string, path?: string): AssetIssue => ({
+  code: "invalid-field",
+  severity: "error",
+  message,
+  path
+});
 
-const toNumber = (value: unknown, fallback = 0): number => (typeof value === "number" && Number.isFinite(value) ? value : fallback);
+const toNumber = (value: unknown, fallback = 0): number =>
+  typeof value === "number" && Number.isFinite(value) ? value : fallback;
 
 const readProperties = (input: unknown): Record<string, string | number | boolean> => {
   const output: Record<string, string | number | boolean> = {};
@@ -74,7 +80,11 @@ const readProperties = (input: unknown): Record<string, string | number | boolea
     if (typeof entry !== "object" || entry === null) continue;
     const property = entry as { name?: unknown; value?: unknown };
     if (typeof property.name !== "string") continue;
-    if (typeof property.value === "string" || typeof property.value === "number" || typeof property.value === "boolean") {
+    if (
+      typeof property.value === "string" ||
+      typeof property.value === "number" ||
+      typeof property.value === "boolean"
+    ) {
       output[property.name] = property.value;
     }
   }
@@ -100,7 +110,8 @@ export const importTiledMap = (input: unknown, options: { assetIdPrefix?: string
   const raw = input as Record<string, unknown>;
   if (raw["infinite"] === true) issues.push(issue("Infinite Tiled maps are not supported; export with fixed size"));
   const orientation = raw["orientation"] ?? "orthogonal";
-  if (orientation !== "orthogonal") issues.push(issue(`Only orthogonal maps are supported, got "${String(orientation)}"`));
+  if (orientation !== "orthogonal")
+    issues.push(issue(`Only orthogonal maps are supported, got "${String(orientation)}"`));
 
   const width = toNumber(raw["width"]);
   const height = toNumber(raw["height"]);
@@ -123,7 +134,9 @@ export const importTiledMap = (input: unknown, options: { assetIdPrefix?: string
     const name = typeof tileset["name"] === "string" ? tileset["name"] : `tileset-${index}`;
     const image = typeof tileset["image"] === "string" ? tileset["image"] : undefined;
     const imageWidth = toNumber(tileset["imagewidth"]);
-    const columns = toNumber(tileset["columns"]) || (imageWidth > 0 ? Math.floor(imageWidth / Math.max(1, toNumber(tileset["tilewidth"], 1))) : 0);
+    const columns =
+      toNumber(tileset["columns"]) ||
+      (imageWidth > 0 ? Math.floor(imageWidth / Math.max(1, toNumber(tileset["tilewidth"], 1))) : 0);
     tilesets.push({
       assetId: assetIdFor(source ?? image ?? name, prefix),
       firstGid,
@@ -168,14 +181,21 @@ export const importTiledMap = (input: unknown, options: { assetIdPrefix?: string
       const rawObjects = Array.isArray(layer["objects"]) ? layer["objects"] : [];
       rawObjects.forEach((value, objectIndex) => {
         if (typeof value !== "object" || value === null) {
-          issues.push(issue(`objects[${objectIndex}] of "${name}" must be an object`, `layers[${index}].objects[${objectIndex}]`));
+          issues.push(
+            issue(`objects[${objectIndex}] of "${name}" must be an object`, `layers[${index}].objects[${objectIndex}]`)
+          );
           return;
         }
         const object = value as Record<string, unknown>;
         objects.push({
           id: toNumber(object["id"]),
           name: typeof object["name"] === "string" ? object["name"] : "",
-          type: typeof object["type"] === "string" ? object["type"] : typeof object["class"] === "string" ? object["class"] : "",
+          type:
+            typeof object["type"] === "string"
+              ? object["type"]
+              : typeof object["class"] === "string"
+                ? object["class"]
+                : "",
           x: toNumber(object["x"]),
           y: toNumber(object["y"]),
           width: toNumber(object["width"]),

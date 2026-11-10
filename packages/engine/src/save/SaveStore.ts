@@ -141,7 +141,8 @@ export class IndexedDbStore implements SaveStore {
       const request = indexedDB.open(this.database, 1);
       request.onupgradeneeded = () => {
         const database = request.result;
-        if (!database.objectStoreNames.contains(this.storeName)) database.createObjectStore(this.storeName, { keyPath: "key" });
+        if (!database.objectStoreNames.contains(this.storeName))
+          database.createObjectStore(this.storeName, { keyPath: "key" });
       };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error ?? new Error("IndexedDB open failed"));
@@ -194,7 +195,10 @@ export class FileSystemStore implements SaveStore {
     const fs = await this.fsLoader();
     try {
       const entries = await fs.readdir(this.baseDir);
-      return entries.filter((entry) => entry.endsWith(".json")).map((entry) => decodeURIComponent(entry.slice(0, -5))).sort();
+      return entries
+        .filter((entry) => entry.endsWith(".json"))
+        .map((entry) => decodeURIComponent(entry.slice(0, -5)))
+        .sort();
     } catch {
       return [];
     }

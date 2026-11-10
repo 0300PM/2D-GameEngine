@@ -1,6 +1,14 @@
 import Phaser from "phaser";
 import type { GameObject } from "../core/GameObject";
-import { inactiveCollider, type ColliderHandle, type ColliderPair, type CollisionHandler, type PhysicsPort, type PhysicsStats, type Vec2 } from "../core/ports";
+import {
+  inactiveCollider,
+  type ColliderHandle,
+  type ColliderPair,
+  type CollisionHandler,
+  type PhysicsPort,
+  type PhysicsStats,
+  type Vec2
+} from "../core/ports";
 
 type ArcadeCollider = Phaser.Types.Physics.Arcade.ArcadeColliderType;
 
@@ -112,12 +120,20 @@ export class PhaserPhysicsBackend implements PhysicsPort {
     this.owners.clear();
   }
 
-  private register(kind: "collider" | "overlap", a: ColliderPair, b: ColliderPair, handler?: CollisionHandler): ColliderHandle {
+  private register(
+    kind: "collider" | "overlap",
+    a: ColliderPair,
+    b: ColliderPair,
+    handler?: CollisionHandler
+  ): ColliderHandle {
     const left = this.resolvePair(a);
     const right = this.resolvePair(b);
     if (!left || !right) return inactiveCollider;
     const callback = handler
-      ? (first: Phaser.Types.Physics.Arcade.GameObjectWithBody, second: Phaser.Types.Physics.Arcade.GameObjectWithBody): void => {
+      ? (
+          first: Phaser.Types.Physics.Arcade.GameObjectWithBody,
+          second: Phaser.Types.Physics.Arcade.GameObjectWithBody
+        ): void => {
           const objectA = this.owners.get(first);
           const objectB = this.owners.get(second);
           if (objectA && objectB) handler(objectA, objectB);
@@ -140,7 +156,9 @@ export class PhaserPhysicsBackend implements PhysicsPort {
 
   private resolvePair(pair: ColliderPair): ArcadeCollider | null {
     const list: readonly GameObject[] = Array.isArray(pair) ? pair : [pair as GameObject];
-    const displays = list.map((object) => this.bodies.get(object)).filter((display): display is PhysicsDisplay => Boolean(display));
+    const displays = list
+      .map((object) => this.bodies.get(object))
+      .filter((display): display is PhysicsDisplay => Boolean(display));
     if (displays.length === 0) return null;
     return (displays.length === 1 ? displays[0] : displays) as unknown as ArcadeCollider;
   }

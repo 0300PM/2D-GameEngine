@@ -242,7 +242,8 @@ export class PhaserRenderLayer implements RenderPort {
       case "sprite": {
         if (this.scene.textures.exists(render.textureId)) {
           const sprite = this.scene.add.sprite(0, 0, render.textureId, render.frame);
-          if (render.displayWidth && render.displayHeight) sprite.setDisplaySize(render.displayWidth, render.displayHeight);
+          if (render.displayWidth && render.displayHeight)
+            sprite.setDisplaySize(render.displayWidth, render.displayHeight);
           return sprite;
         }
         return this.scene.add.circle(0, 0, render.fallbackRadius ?? 12, render.fallbackColor ?? 0xf2f3f5);
