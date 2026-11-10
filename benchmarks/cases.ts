@@ -6,6 +6,24 @@ import { AssetManager } from "../packages/engine/src/systems/AssetManager";
 import { collectSpawns, importTiledMap } from "../packages/engine/src/assets/TiledMap";
 import type { ColliderHandle, ColliderPair, CollisionHandler, PhysicsPort, Vec2 } from "../packages/engine/src/core/ports";
 import type { AssetDescriptor } from "../packages/engine/src/assets/AssetManifest";
+import { installTestCore } from "../tests/helpers/native";
+import { benchmarkNativeCore } from "../packages/engine/src/debug/nativeBenchmark";
+import { composeTransform } from "../packages/engine/src/components/Transform";
+import { sortByPhase } from "../packages/engine/src/core/schedule";
+import type { SystemPhase } from "../packages/engine/src/core/Component";
+
+installTestCore();
+
+const NATIVE_OPTIONS = { frames: 240, objects: 256, seed: 1337 } as const;
+
+const scheduleEntries = Array.from({ length: 4000 }, (_, index) => ({
+  phase: (["input", "behavior", "physics", "animation", "render"] as SystemPhase[])[index % 5],
+  order: index % 13,
+  sequence: index
+}));
+
+const parentTransform = { x: 12, y: 8, rotation: 0.35, scaleX: 1.5, scaleY: 1.25 };
+const localTransform = { x: 4, y: -2, rotation: 0.1, scaleX: 1, scaleY: 1 };
 
 export type BenchmarkCase = {
   group: string;
@@ -300,6 +318,29 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     name: "diagnose usage of 500 assets",
     run: () => {
       buildAssets().diagnose({ usedIds: assetIds(400) });
+    }
+  },
+  {
+    group: "native",
+    name: "cpp loop with seeded random (240 frames x 256 draws)",
+    run: () => {
+      benchmarkNativeCore(NATIVE_OPTIONS);
+    }
+  },
+  {
+    group: "native",
+    name: "cpp transform composition (10 000)",
+    run: () => {
+      let sum = 0;
+      for (let index = 0; index < 10000; index += 1) sum += composeTransform(parentTransform, localTransform).x;
+      if (sum < 0) throw new Error("unreachable");
+    }
+  },
+  {
+    group: "native",
+    name: "cpp component schedule (4 000 entries)",
+    run: () => {
+      sortByPhase(scheduleEntries);
     }
   }
 ];
