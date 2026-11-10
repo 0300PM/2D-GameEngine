@@ -1,0 +1,18 @@
+{
+  "sync": {
+    "scene": "native-core",
+    "frames": 600,
+    "fixedSteps": 600,
+    "objects": 2048,
+    "components": 2048,
+    "digest": "00000000"
+  },
+  "async": {
+    "scene": "native-core-async",
+    "frames": 120,
+    "fixedSteps": 120,
+    "objects": 256,
+    "components": 256,
+    "digest": "00000000"
+  }
+}

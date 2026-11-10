@@ -12,7 +12,10 @@ class Bobbing extends Component {
   phase: SystemPhase = "animation";
   private elapsed = 0;
 
-  constructor(private amplitude = 12, private speed = 2.4) {
+  constructor(
+    private amplitude = 12,
+    private speed = 2.4
+  ) {
     super();
   }
 
@@ -28,7 +31,11 @@ class Orbit extends Component {
   phase: SystemPhase = "physics";
   private angle = 0;
 
-  constructor(private readonly target: GameObject, private readonly radius = 140, private readonly speed = 0.9) {
+  constructor(
+    private readonly target: GameObject,
+    private readonly radius = 140,
+    private readonly speed = 0.9
+  ) {
     super();
   }
 
@@ -36,7 +43,10 @@ class Orbit extends Component {
     const owner = this.owner;
     if (!owner) return;
     this.angle += deltaTime * this.speed;
-    owner.setPosition(this.target.x + Math.cos(this.angle) * this.radius, this.target.y + Math.sin(this.angle) * this.radius);
+    owner.setPosition(
+      this.target.x + Math.cos(this.angle) * this.radius,
+      this.target.y + Math.sin(this.angle) * this.radius
+    );
   }
 }
 

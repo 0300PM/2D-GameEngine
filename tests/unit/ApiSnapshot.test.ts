@@ -15,7 +15,12 @@ const collectSymbols = (source: string): string[] => {
   let match: RegExpExecArray | null;
   while ((match = block.exec(source))) {
     for (const raw of match[1].split(",")) {
-      const name = raw.trim().replace(/^type\s+/, "").split(/\s+as\s+/).pop()?.trim();
+      const name = raw
+        .trim()
+        .replace(/^type\s+/, "")
+        .split(/\s+as\s+/)
+        .pop()
+        ?.trim();
       if (name && /^[A-Za-z_$][\w$]*$/.test(name)) symbols.add(name);
     }
   }
@@ -44,7 +49,10 @@ describe("public API snapshot", () => {
 
     expect(removed, `Usunięte symbole publiczne: ${removed.join(", ")} — to jest zmiana łamiąca`).toEqual([]);
     expect(added, `Nowe symbole publiczne: ${added.join(", ")} — odśwież snapshot: UPDATE_API_SNAPSHOT=1`).toEqual([]);
-    expect({ version: next.version, apiLevel: next.apiLevel }).toEqual({ version: previous.version, apiLevel: previous.apiLevel });
+    expect({ version: next.version, apiLevel: next.apiLevel }).toEqual({
+      version: previous.version,
+      apiLevel: previous.apiLevel
+    });
   });
 
   it("exposes a stable entry point with at least 150 symbols", () => {

@@ -12,11 +12,9 @@ const readStored = (): Lang | null => {
   }
 };
 
-export const currentLang = (): Lang =>
-  document.body.dataset.lang === "en" ? "en" : "pl";
+export const currentLang = (): Lang => (document.body.dataset.lang === "en" ? "en" : "pl");
 
-export const t = (pl: string, en: string): string =>
-  currentLang() === "pl" ? pl : en;
+export const t = (pl: string, en: string): string => (currentLang() === "pl" ? pl : en);
 
 export const setLang = (lang: Lang): void => {
   document.body.dataset.lang = lang;

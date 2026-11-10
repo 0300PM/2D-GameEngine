@@ -103,7 +103,8 @@ export const mountDebugPanel = (engine: Engine, options: DebugPanelOptions = {})
   };
 
   const unmountPlugins = (): void => {
-    for (const descriptor of engine.getPlugins().getPanels().list()) engine.getPlugins().getPanels().unmount(descriptor.id);
+    for (const descriptor of engine.getPlugins().getPanels().list())
+      engine.getPlugins().getPanels().unmount(descriptor.id);
     pluginPanels.replaceChildren();
   };
 
@@ -166,7 +167,9 @@ export const mountDebugPanel = (engine: Engine, options: DebugPanelOptions = {})
     void engine
       .getDiagnostics()
       .copy()
-      .then((ok) => setStatus(ok ? "Raport w schowku" : "Brak dostępu do schowka", ok ? "Report copied" : "Clipboard unavailable"));
+      .then((ok) =>
+        setStatus(ok ? "Raport w schowku" : "Brak dostępu do schowka", ok ? "Report copied" : "Clipboard unavailable")
+      );
   });
 
   const shortcuts: Record<string, () => void> = {

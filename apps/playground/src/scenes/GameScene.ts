@@ -296,15 +296,21 @@ export class GameScene extends Scene {
       style: HUD_STYLE,
       tags: ["ui"]
     });
-    this.createText(t("WASD / strzałki • P pauza • [ ] tempo • N dźwięk • R restart • M menu", "WASD / arrows • P pause • [ ] speed • N sound • R restart • M menu"), {
-      id: "hud-hint",
-      x: 16,
-      y: 50,
-      scrollFactor: 0,
-      depth: 100,
-      style: HINT_STYLE,
-      tags: ["ui"]
-    });
+    this.createText(
+      t(
+        "WASD / strzałki • P pauza • [ ] tempo • N dźwięk • R restart • M menu",
+        "WASD / arrows • P pause • [ ] speed • N sound • R restart • M menu"
+      ),
+      {
+        id: "hud-hint",
+        x: 16,
+        y: 50,
+        scrollFactor: 0,
+        depth: 100,
+        style: HINT_STYLE,
+        tags: ["ui"]
+      }
+    );
     this.updateHud();
   }
 
@@ -392,7 +398,10 @@ export class GameScene extends Scene {
       this.updateHud();
       if (this.score > 0) this.getLogger().info("Restored progress", { collected: this.score });
     };
-    saves.load("demo", "auto").then(restore).catch((error: Error) => this.getLogger().warn(`Could not read save: ${error.message}`));
+    saves
+      .load("demo", "auto")
+      .then(restore)
+      .catch((error: Error) => this.getLogger().warn(`Could not read save: ${error.message}`));
   }
 
   private getSaveRepository(): PlayerSaveRepository {

@@ -43,6 +43,8 @@ describe("telemetry-panel example", () => {
     plugins.getPanels().mount("telemetry", parent);
     events.emit("core:ready", { impl: "cpp", abi: 1 });
     expect(plugins.get("telemetry-panel")?.state).toBe("active");
-    expect(plugins.getSystems().some((system) => system.name === "telemetry" && system.owner === "telemetry-panel")).toBe(true);
+    expect(
+      plugins.getSystems().some((system) => system.name === "telemetry" && system.owner === "telemetry-panel")
+    ).toBe(true);
   });
 });

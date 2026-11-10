@@ -86,7 +86,8 @@ export class MenuScene extends Scene {
   update(): void {
     if (this.started) return;
     const input = this.getInput();
-    if (input.isActionPressed("interact") || input.isActionPressed("jump") || input.getPointer().isDown) this.startGame();
+    if (input.isActionPressed("interact") || input.isActionPressed("jump") || input.getPointer().isDown)
+      this.startGame();
   }
 
   shutdown(): void {

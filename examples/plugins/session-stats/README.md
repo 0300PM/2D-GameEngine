@@ -18,12 +18,12 @@ The playground installs exactly this plugin, so the demo doubles as an integrati
 
 ## Manifest
 
-| Field | Value | Why |
-|-------|-------|-----|
-| `id` | `session-stats` | Lowercase kebab-case, unique per engine |
-| `version` | `1.0.0` | Plugin version, checked against dependency ranges |
-| `engine` | `^0.1.0` | Refuses to start on an incompatible engine |
-| `permissions` | `systems`, `panels`, `events`, `storage` | Each capability is denied until declared |
+| Field         | Value                                    | Why                                               |
+| ------------- | ---------------------------------------- | ------------------------------------------------- |
+| `id`          | `session-stats`                          | Lowercase kebab-case, unique per engine           |
+| `version`     | `1.0.0`                                  | Plugin version, checked against dependency ranges |
+| `engine`      | `^0.1.0`                                 | Refuses to start on an incompatible engine        |
+| `permissions` | `systems`, `panels`, `events`, `storage` | Each capability is denied until declared          |
 
 ## What it does
 

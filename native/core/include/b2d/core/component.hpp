@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
@@ -110,71 +111,111 @@ struct ComponentRegistry {
 class SceneSchedule {
  public:
   void add(std::uint32_t componentId, ComponentPhase phase, int order, std::uint32_t sequence) {
-    entries_.push_back(Entry{componentId, phase, order, sequence});
+    for (std::size_t index = 0; index < count_; ++index) {
+      if (buffer_[index].componentId != componentId) continue;
+      buffer_[index].phase = phase;
+      buffer_[index].order = order;
+      buffer_[index].sequence = sequence;
+      ++revision_;
+      dirty_ = true;
+      return;
+    }
+    if (count_ == buffer_.size()) buffer_.push_back(Entry{componentId, phase, order, sequence});
+    else buffer_[count_] = Entry{componentId, phase, order, sequence};
+    ++count_;
+    ++revision_;
     dirty_ = true;
   }
 
   void remove(std::uint32_t componentId) {
-    for (std::size_t index = 0; index < entries_.size(); ++index) {
-      if (entries_[index].componentId != componentId) continue;
-      entries_[index] = entries_.back();
-      entries_.pop_back();
+    for (std::size_t index = 0; index < count_; ++index) {
+      if (buffer_[index].componentId != componentId) continue;
+      --count_;
+      buffer_[index] = buffer_[count_];
+      ++revision_;
       dirty_ = true;
       return;
     }
   }
 
   void setPhase(std::uint32_t componentId, ComponentPhase phase) {
-    for (auto& entry : entries_) {
+    for (std::size_t index = 0; index < count_; ++index) {
+      Entry& entry = buffer_[index];
       if (entry.componentId != componentId) continue;
+      if (entry.phase == phase) return;
       entry.phase = phase;
+      ++revision_;
       dirty_ = true;
       return;
     }
   }
 
   void setOrder(std::uint32_t componentId, int order) {
-    for (auto& entry : entries_) {
+    for (std::size_t index = 0; index < count_; ++index) {
+      Entry& entry = buffer_[index];
       if (entry.componentId != componentId) continue;
+      if (entry.order == order) return;
       entry.order = order;
+      ++revision_;
       dirty_ = true;
       return;
     }
   }
 
+  [[nodiscard]] bool has(std::uint32_t componentId) const noexcept {
+    for (std::size_t index = 0; index < count_; ++index) {
+      if (buffer_[index].componentId == componentId) return true;
+    }
+    return false;
+  }
+
   void clear() noexcept {
-    entries_.clear();
+    count_ = 0;
+    order_.resize(0);
+    ++revision_;
     dirty_ = true;
   }
 
-  [[nodiscard]] std::size_t size() const noexcept { return entries_.size(); }
+  [[nodiscard]] std::size_t size() const noexcept { return count_; }
   [[nodiscard]] bool dirty() const noexcept { return dirty_; }
+  [[nodiscard]] std::uint32_t revision() const noexcept { return revision_; }
 
   [[nodiscard]] const std::vector<std::uint32_t>& ordered() {
-    if (dirty_) {
-      std::stable_sort(entries_.begin(), entries_.end(), [](const Entry& left, const Entry& right) {
-        const auto leftRank = phaseRank(left.phase);
-        const auto rightRank = phaseRank(right.phase);
-        if (leftRank != rightRank) return leftRank < rightRank;
-        if (left.order != right.order) return left.order < right.order;
-        return left.sequence < right.sequence;
-      });
-      order_.resize(entries_.size());
-      for (std::size_t index = 0; index < entries_.size(); ++index) order_[index] = entries_[index].componentId;
-      dirty_ = false;
-    }
+    if (!dirty_) return order_;
+    if (order_.size() < count_) order_.resize(count_);
+    for (std::size_t index = 0; index < count_; ++index) order_[index] = static_cast<std::uint32_t>(index);
+    std::printf("DBG before sort slots:");
+    for (std::size_t i = 0; i < count_; ++i) std::printf(" %u(rank %zu/order %d/seq %u)", buffer_[i].componentId, phaseRank(buffer_[i].phase), buffer_[i].order, buffer_[i].sequence);
+    std::printf("\n");
+    const Entry* base = buffer_.data();
+    const std::size_t count = count_;
+    std::sort(order_.begin(), order_.begin() + static_cast<std::ptrdiff_t>(count),
+              [base, count](std::uint32_t left, std::uint32_t right) {
+                const Entry& a = base[left];
+                const Entry& b = base[right];
+                const auto aRank = phaseRank(a.phase);
+                const auto bRank = phaseRank(b.phase);
+                if (aRank != bRank) return aRank < bRank;
+                if (a.order != b.order) return a.order < b.order;
+                return a.sequence < b.sequence;
+              });
+    order_.resize(count_);
+    std::printf("DBG resize count=%zu size=%zu:", count_, order_.size());
+    for (auto v : order_) std::printf(" %u", v);
+    std::printf("\n");
+    ++revision_;
+    dirty_ = false;
     return order_;
   }
 
   [[nodiscard]] std::vector<std::uint32_t> phase(ComponentPhase phase) {
-    const auto& list = ordered();
+    ordered();
     std::vector<std::uint32_t> out;
-    for (const auto componentId : list) {
-      for (const auto& entry : entries_) {
-        if (entry.componentId != componentId) continue;
-        if (entry.phase == phase) out.push_back(componentId);
-        break;
-      }
+    out.reserve(count_);
+    for (std::size_t index = 0; index < count_; ++index) {
+      const auto slot = order_[index];
+      if (buffer_[slot].phase != phase) continue;
+      out.push_back(buffer_[slot].componentId);
     }
     return out;
   }
@@ -187,9 +228,19 @@ class SceneSchedule {
     std::uint32_t sequence = 0;
   };
 
-  std::vector<Entry> entries_;
+  [[nodiscard]] static bool before(const Entry& left, const Entry& right) noexcept {
+    const auto leftRank = phaseRank(left.phase);
+    const auto rightRank = phaseRank(right.phase);
+    if (leftRank != rightRank) return leftRank < rightRank;
+    if (left.order != right.order) return left.order < right.order;
+    return left.sequence < right.sequence;
+  }
+
+  std::vector<Entry> buffer_;
   std::vector<std::uint32_t> order_;
+  std::size_t count_ = 0;
   bool dirty_ = true;
+  std::uint32_t revision_ = 0;
 };
 
 }

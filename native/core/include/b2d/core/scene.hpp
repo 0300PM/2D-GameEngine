@@ -71,8 +71,8 @@ class Scene {
 
   [[nodiscard]] std::uint32_t addComponent(std::uint32_t componentId, ObjectId owner, ComponentPhase phase, int order) {
     const auto sequence = registry_.attach(componentId, owner, phase, order);
-    schedule_.add(componentId, phase, order, sequence);
-    schedule_.ordered();
+    if (!schedule_.has(componentId)) schedule_.add(componentId, phase, order, sequence);
+    else schedule_.setPhase(componentId, phase);
     stats_.components = schedule_.size();
     return sequence;
   }
@@ -101,6 +101,10 @@ class Scene {
   [[nodiscard]] const ComponentRegistry& registry() const noexcept { return registry_; }
 
   [[nodiscard]] std::vector<std::uint32_t> componentOrder() { return schedule_.ordered(); }
+
+  [[nodiscard]] std::uint32_t componentRevision() const noexcept { return schedule_.revision(); }
+  [[nodiscard]] std::uint32_t scheduleDirtyTag() const noexcept { return schedule_.dirty() ? 1u : 0u; }
+  [[nodiscard]] std::uint32_t scheduleEntryCount() const noexcept { return static_cast<std::uint32_t>(schedule_.size()); }
 
   [[nodiscard]] std::vector<std::uint32_t> phaseOrder(ComponentPhase phase) {
     const auto& ordered = schedule_.ordered();

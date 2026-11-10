@@ -100,8 +100,7 @@ export const examples: PlaygroundExample[] = [
 
 export const defaultExampleId = "top-down";
 
-export const findExample = (id: string): PlaygroundExample | undefined =>
-  examples.find((example) => example.id === id);
+export const findExample = (id: string): PlaygroundExample | undefined => examples.find((example) => example.id === id);
 
 export const runnableExamples = (): PlaygroundExample[] =>
   examples.filter((example) => example.status === "ready" && Boolean(example.scene));

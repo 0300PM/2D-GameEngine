@@ -14,13 +14,7 @@ namespace b2d::core {
 using ObjectId = std::uint32_t;
 constexpr ObjectId nullObject = 0u;
 
-struct WorldEntry {
-  double x = 0.0;
-  double y = 0.0;
-  double rotation = 0.0;
-  double scaleX = 1.0;
-  double scaleY = 1.0;
-};
+using WorldEntry = Transform;
 
 class World {
  public:

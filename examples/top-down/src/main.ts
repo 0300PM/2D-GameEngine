@@ -69,7 +69,7 @@ async function bootstrap(): Promise<void> {
       else engine.pause();
     }
     if (e.code === "F2") {
-      const cur = (engine as unknown as { debugOverlay: { isEnabled: () => boolean; setEnabled: (b: boolean) => void } });
+      const cur = engine as unknown as { debugOverlay: { isEnabled: () => boolean; setEnabled: (b: boolean) => void } };
       void cur;
     }
   });

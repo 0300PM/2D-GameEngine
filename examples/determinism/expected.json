@@ -1,0 +1,4 @@
+{
+  "digest": { "objects": 256, "frames": 120, "seed": 1337, "value": "a545b167" },
+  "frames": { "objects": 512, "frames": 240, "seed": 424242, "componentUpdates": 122880, "value": "50d0e49a" }
+}

@@ -194,7 +194,7 @@ export const mountShell = (options: ShellOptions): Shell => {
     const target = event.target as HTMLElement;
     const runButton = target.closest<HTMLButtonElement>("[data-run]");
     const row = target.closest<HTMLElement>(".row");
-    const example = findExample((runButton?.dataset.run ?? row?.dataset.id) ?? "");
+    const example = findExample(runButton?.dataset.run ?? row?.dataset.id ?? "");
     if (!example) return;
     if (example.status === "ready") {
       run(example);
@@ -224,10 +224,7 @@ export const mountShell = (options: ShellOptions): Shell => {
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         event.preventDefault();
         const items = visibleExamples().length;
-        highlighted =
-          event.key === "ArrowDown"
-            ? Math.min(highlighted + 1, items - 1)
-            : Math.max(highlighted - 1, 0);
+        highlighted = event.key === "ArrowDown" ? Math.min(highlighted + 1, items - 1) : Math.max(highlighted - 1, 0);
         renderList();
         focusHighlighted();
       }

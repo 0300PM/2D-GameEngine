@@ -16,11 +16,11 @@ It writes no files, owns no storage key and tears its panel down through `onDisp
 
 ## Contract
 
-| Extension point | Used for |
-|-----------------|----------|
+| Extension point    | Used for                                                   |
+| ------------------ | ---------------------------------------------------------- |
 | `systems.register` | samples `deltaTime`, throttled to four repaints per second |
-| `panels.register` | one DOM panel titled "Native telemetry" |
-| `events.on` | `core:ready` payload `{ impl, abi }` |
+| `panels.register`  | one DOM panel titled "Native telemetry"                    |
+| `events.on`        | `core:ready` payload `{ impl, abi }`                       |
 
 ## Tests
 
