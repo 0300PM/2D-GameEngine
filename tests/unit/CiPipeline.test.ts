@@ -17,7 +17,12 @@ describe("CI/CD contract", () => {
     expect(plan.configure).toContain("-DB2D_CORE_BUILD_BENCH=OFF");
     expect(plan.configure).toContain("-DB2D_CORE_BUILD_EXAMPLES=ON");
     expect(plan.targets).toEqual(["b2d_native_example", "b2d_native_example_async"]);
-    const wasm = buildNativeArguments({ buildDir: "build-wasm", target: WASM_TARGET, sourceDir: "native/core", examples: false });
+    const wasm = buildNativeArguments({
+      buildDir: "build-wasm",
+      target: WASM_TARGET,
+      sourceDir: "native/core",
+      examples: false
+    });
     expect(wasm).toContain("-DB2D_CORE_BUILD_EXAMPLES=OFF");
     expect(wasm).toContain("-DB2D_CORE_BUILD_TESTS=OFF");
     expect(wasm).toContain("-DB2D_CORE_BUILD_BENCH=OFF");

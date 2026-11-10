@@ -8,12 +8,15 @@ TypeScripcie, render i fizyka przez adapter Phasera. Dokumentacja:
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
-npm run build      # dist/
-npm test           # Vitest
-npm run native:test
-npm run native:bench
-npm run native:example
+npm run dev            # http://localhost:5173
+npm run build          # dist/
+npm test               # Vitest (unit + integracyjne)
+npm run examples:check # testy przykładów
+npm run native:test    # CMake + ctest (wymaga cmake i kompilatora C++23)
+npm run native:bench   # benchmark C++ → benchmarks/native-latest.json
+npm run native:example # host C++ z raportem JSON
+npm run verify         # pełna brama jakości (bez natywnej i e2e)
+npm run verify:all     # wszystko: natywne, examples, e2e
 ```
 
 ## Struktura
@@ -25,9 +28,11 @@ packages/phaser-adapter/ adapter izolujący Phasera
 packages/project-format/ walidacja JSON projektów
 packages/wasm-bridge/    most TS↔WASM
 apps/playground/         aplikacja deweloperska (Vite)
-examples/                top-down, session-stats, telemetry-panel, native-core
+examples/                top-down, plugins/*, determinism, native-core
 tests/                   unit + integracyjne (Vitest)
-benchmarks/              progi regresji TS i C++
+benchmarks/              progi regresji TS i C++ (baseline + latest)
+config/                  wspólna konfiguracja Vite, aliasów i wywołań CMake
+scripts/                 bramki CI: wersje, wydanie, budżety, WASM, docs-check
 ```
 
 ## Rdzeń w C++
@@ -62,6 +67,41 @@ engine.getWasm().getImpl();
 nativeCore.stats();
 benchmarkNativeCore({ frames: 600 });
 ```
+
+### Harmonogram komponentów
+
+`SceneSchedule` trzyma komponenty w jednym buforze i sortuje indeksy, nie same wpisy:
+
+- kolejność: faza → `order` → `sequence` (kolejność dodania), więc sortowanie jest deterministyczne,
+- `ordered()` przelicza kolejność tylko po zmianie (`dirty()`), a `revision()` licznik zmian pozwala
+  wykryć modyfikację bez porównywania tablic,
+- `remove()` zwija bufor w O(1) bez przesuwania reszty, `add()` na istniejącym id aktualizuje wpis
+  zamiast dublować,
+- `phase(phase)` przechodzi raz po posortowanej tablicy (wcześniej O(n²)).
+
+### Build natywny
+
+```bash
+cmake -S native/core -B build-native -DCMAKE_BUILD_TYPE=Release
+cmake --build build-native --config Release
+ctest --test-dir build-native --output-on-failure -C Release
+```
+
+Wymagania: CMake ≥ 3.20 i kompilator z C++23 (MSVC 19.3x, GCC 13+, Clang 17+). Windows:
+generator Visual Studio wymaga `-A x64`; skrypty npm dopasowują ścieżkę binarki
+(`build-native/Release/*.exe` na Windows, `build-native/*` na Linuksie/macOS) przez
+`config/native.ts`.
+
+### WebAssembly
+
+```bash
+npm run build:wasm
+```
+
+`scripts/build-wasm.mjs` konfiguruje `native/core` przez `emcmake` z
+`-DB2D_CORE_BUILD_TESTS=OFF -DB2D_CORE_BUILD_BENCH=OFF -DB2D_CORE_BUILD_EXAMPLES=OFF`,
+buduje target `core_wasm`, kopiuje `core.wasm` do `dist/assets/` i robi smoke-test modułu
+(ABI = 1, `b2d_bench_scene`). Wynik zapisuje w `dist/wasm.json`.
 
 ## Użycie silnika
 
@@ -134,32 +174,65 @@ engine.start("my-scene");
 
 ## Przykłady
 
-| Katalog                            | Co pokazuje                                                  |
-| ---------------------------------- | ------------------------------------------------------------ |
-| `examples/top-down`                | gra referencyjna: sceny, input, kolizje, kamera, HUD         |
-| `examples/plugins/session-stats`   | plugin: system + panel + storage                             |
-| `examples/plugins/telemetry-panel` | plugin raportujący rdzeń (`core:ready`), ABI i przepustowość |
-| `examples/native-core`             | samodzielny host C++: fixed step, RNG, hierarchia, digest    |
+| Katalog                            | Co pokazuje                                                         |
+| ---------------------------------- | ------------------------------------------------------------------- |
+| `examples/top-down`                | gra referencyjna: sceny, input, kolizje, kamera, HUD                |
+| `examples/plugins/session-stats`   | plugin: system + panel + storage                                    |
+| `examples/plugins/telemetry-panel` | plugin raportujący rdzeń (`core:ready`), ABI i przepustowość        |
+| `examples/determinism`             | deterministyczne ramki sceny i digest FNV-1a, golden values         |
+| `examples/native-core`             | dwa hosty C++ (sync i async) z raportem JSON porównywanym z fixture |
+
+Każdy przykład ma własne testy w `examples/**/tests/**/*.test.ts`, uruchamiane przez
+`npm run examples:check`. Natywne przykłady buduje `npm run examples:native`, a wartości
+odniesienia zapisuje `npm run examples:baseline` (`examples/determinism/expected.json`,
+`examples/native-core/expected.json`).
 
 ## Skrypty
 
-| Skrypt                                  | Opis                                            |
-| --------------------------------------- | ----------------------------------------------- |
-| `npm run dev`                           | Vite dev (playground)                           |
-| `npm run build`                         | typecheck + build do `dist/`                    |
-| `npm test`                              | Vitest                                          |
-| `npm run native:build`                  | CMake build rdzenia                             |
-| `npm run native:test`                   | CMake + ctest                                   |
-| `npm run native:bench`                  | benchmark C++ → `benchmarks/native-latest.json` |
-| `npm run native:example`                | przykład hosta C++                              |
-| `npm run examples:check`                | testy przykładów                                |
-| `npm run bench` / `npm run bench:check` | benchmarki TS i progi regresji                  |
-| `npm run verify`                        | pełna brama jakości                             |
+| Skrypt                                  | Opis                                                      |
+| --------------------------------------- | --------------------------------------------------------- |
+| `npm run dev`                           | Vite dev (playground)                                     |
+| `npm run build`                         | typecheck + build do `dist/`                              |
+| `npm run build:single`                  | build + pojedynczy `playground.html`                      |
+| `npm run build:wasm`                    | rdzeń C++ → `core.wasm` + smoke-test ABI                  |
+| `npm test`                              | Vitest                                                    |
+| `npm run native:build`                  | CMake build rdzenia                                       |
+| `npm run native:test`                   | CMake + ctest                                             |
+| `npm run native:bench`                  | benchmark C++ → `benchmarks/native-latest.json`           |
+| `npm run bench:native:check`            | porównanie z `benchmarks/native-baseline.json`            |
+| `npm run native:example`                | oba hosty C++ z weryfikacją fixture                       |
+| `npm run examples:check`                | testy przykładów (TS + kontrakty natywne)                 |
+| `npm run examples:native`               | build i uruchomienie natywnych przykładów w CI            |
+| `npm run examples:baseline`             | zapis wartości odniesienia dla przykładów                 |
+| `npm run bench` / `npm run bench:check` | benchmarki TS i progi regresji                            |
+| `npm run bundle:check`                  | budżet rozmiaru bundla względem `bundle-baseline.json`    |
+| `npm run audit:licenses:check`          | audyt licencji i zasobów                                  |
+| `npm run docs:check`                    | brak `docs/` i brak starych odnośników lokalnych          |
+| `npm run verify`                        | pełna brama jakości (bez natywnej i e2e)                  |
+| `npm run verify:all`                    | `verify` + `native:test` + `examples:native` + `test:e2e` |
+
+## CI
+
+`.github/workflows/ci.yml` ma pięć jobów:
+
+| Job       | Kiedy                     | Co robi                                                                                |
+| --------- | ------------------------- | -------------------------------------------------------------------------------------- |
+| `changes` | zawsze                    | fingerprint zmienionych obszarów (native / wasm / docs)                                |
+| `native`  | zmiany w `native/`        | macierz ubuntu/macOS/Windows: build, `ctest`, `bench_core`, `npm run examples:native`  |
+| `wasm`    | zmiany w rdzeniu          | Emscripten 3.1.61, `node scripts/build-wasm.mjs`, artefakt `core-wasm`                 |
+| `verify`  | zawsze                    | typecheck, lint, format, unit, examples, benchmarki, build, budżety, licencje, release |
+| `e2e`     | po `verify`               | Playwright: scenariusze, matryca, zgodność, hosting                                    |
+| `docs`    | zmiany w `*.md` / `docs/` | `node scripts/docs-check.mjs` — pilnuje, żeby dokumentacja nie wróciła do repo         |
+
+Natywny job nie zależy od `docs/`: dokumentacja żyje wyłącznie pod adresem docs site.
 
 ## Dokumentacja
 
 Pełna dokumentacja (API, przewodniki, ADR, zgodność przeglądarek):
 <https://docs.krecik.tech/game-engine>
+
+W repozytorium nie ma katalogu `docs/` — pilnuje tego `npm run docs:check` oraz test
+`tests/unit/WorkspaceVersions.test.ts`.
 
 ## Licencja
 

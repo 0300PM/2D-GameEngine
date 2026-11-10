@@ -28,9 +28,24 @@ describes the behaviour, not the file that implements it.
 - A release-notes template, a technical-debt register and nine decision records, published on the docs site.
 - Documentation pages `#releases` (channels, release procedure, artifacts) and `#debt` (technical debt and ADRs),
   both in Polish and English.
+- `examples/determinism`: fixed-step determinism example for the TypeScript core — `runDeterministicDigest()` and
+  `runFixedFrames()` return an FNV-1a digest of positions, phase order and component updates, guarded by golden
+  values in `examples/determinism/expected.json`.
+- `examples/native-core/native/b2d_native_example_async.cpp`: a second native host (`native-core-async`) with its own
+  scene, seed and frame budget, so the C++ example contract is covered by more than one binary.
+- `scripts/native-examples.mjs`, `scripts/examples-baseline.mjs`, `scripts/build-wasm.mjs` and `scripts/docs-check.mjs`:
+  native example gate, fixture refresh, Emscripten build with an ABI smoke test, and a guard that fails when local
+  documentation or a stale docs link reappears.
+- `config/native.ts`: one place for CMake arguments, build targets and binary paths, shared by the npm scripts, CI
+  and the tests.
 
 ### Changed
 
+- CI is split into `changes`, `native`, `wasm`, `verify`, `e2e` and `docs` jobs. The native job runs on Ubuntu, macOS
+  and Windows (build, `ctest`, `bench_core`, `npm run examples:native`) and no job depends on a `docs/` directory any
+  more; a fingerprint job skips the native and WASM work when their sources did not change.
+- The native example targets are named after their binaries (`b2d_native_example`, `b2d_native_example_async`) and
+  read their sources from `examples/native-core/native` through `B2D_EXAMPLE_DIR`.
 - `package.json` of every workspace package now carries an explicit `version`, `private` flag, `exports` map and a
   pinned internal dependency, so `npm ci` can install the monorepo from the lockfile alone. `npm ci` failed before
   this change: the lockfile had no entries for `@browser2d/phaser-adapter`, `@browser2d/project-format` and
@@ -47,10 +62,18 @@ Both are registered at start-up, so `engine.getDeprecations()` lists them withou
 
 ### Removed
 
-- Nothing.
+- The `docs/` directory and every relative link into it (`README.md`, `CHANGELOG.md`, `templates/plugin/README.md`,
+  `scripts/release.mjs`, examples). Documentation lives only at <https://docs.krecik.tech/game-engine>.
+- `docs/*` entries from `benchmarks/bundle-baseline.json`; the bundle budget no longer counts documentation pages.
 
 ### Fixed
 
+- The C++ core did not compile with MSVC: `WorldEntry` was a distinct struct that `compose()` could not consume
+  (`WorldEntry` is now `Transform`), `component.hpp` used `std::stable_sort` without `<algorithm>` and `hash.hpp`
+  used `std::string` without `<string>`.
+- `SceneSchedule::setOrder()` and `setPhase()` could leave the cached order stale; the schedule now sorts indices
+  over a single buffer, bumps a `revision()` counter on every change and reports `has(id)` so re-adding a component
+  updates its entry instead of duplicating it.
 - `npm ci` on a clean checkout: the three package manifests that existed only as source folders are now real
   workspace packages with versions.
 - Documentation search treated `kompatybilnosc` and `kompatybilność` as different terms; queries are now
