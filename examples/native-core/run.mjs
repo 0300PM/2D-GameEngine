@@ -1,40 +1,31 @@
-import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
+import {
+  ensureNativeExamples,
+  nativeExamplePaths,
+  readFixture,
+  runNativeExample
+} from "../../tests/helpers/nativeExample.ts";
 
-const ROOT = resolve(fileURLToPath(new URL(".", import.meta.url)), "../..");
-const CORE = join(ROOT, "native/core");
-const BUILD = join(ROOT, "build-native");
-const BINARY = join(BUILD, process.platform === "win32" ? "b2d_native_example.exe" : "b2d_native_example");
+const ROOT = resolve(process.cwd());
+const TARGETS = ["b2d_native_example", "b2d_native_example_async"];
 
-const has = (command) => {
-  try {
-    execFileSync(command, ["--version"], { stdio: "ignore" });
-    return true;
-  } catch {
-    return false;
+ensureNativeExamples({ root: ROOT, targets: TARGETS });
+const expected = readFixture(ROOT) ?? {};
+const failures = [];
+
+for (const target of TARGETS) {
+  const report = runNativeExample(target, { root: ROOT });
+  console.log(JSON.stringify(report));
+  const key = target === "b2d_native_example" ? "sync" : "async";
+  for (const field of ["frames", "fixedSteps", "objects", "components", "digest"]) {
+    const wanted = expected[key]?.[field];
+    if (wanted === undefined || wanted === report[field]) continue;
+    failures.push(`${target}.${field}: expected ${wanted}, got ${report[field]}`);
   }
-};
-
-if (!has("cmake")) {
-  console.error("native-core example: cmake is required (https://cmake.org/download/)");
-  process.exit(2);
 }
 
-if (!existsSync(BINARY)) {
-  execFileSync(
-    "cmake",
-    ["-S", CORE, "-B", BUILD, "-DCMAKE_BUILD_TYPE=Release", "-DB2D_CORE_BUILD_TESTS=OFF", "-DB2D_CORE_BUILD_BENCH=OFF"],
-    { stdio: "inherit" }
-  );
-  execFileSync("cmake", ["--build", BUILD, "--target", "b2d_native_example", "--config", "Release"], { stdio: "inherit" });
-}
-
-const output = execFileSync(BINARY, [], { encoding: "utf8" }).trim();
-const report = JSON.parse(output);
-console.log(output);
-if (report.frames !== 600 || report.objects !== 2048) {
-  console.error("native-core example: unexpected scene size");
+if (failures.length > 0) {
+  console.error(`native-core example: deterministic report drifted\n  ${failures.join("\n  ")}`);
   process.exit(1);
 }
+console.log(`native-core example: ${TARGETS.length} hosts, binaries in ${nativeExamplePaths(ROOT).build}`);
