@@ -5,6 +5,7 @@ import { basename, join, relative, resolve } from "node:path";
 import { checkVersions, readEngineVersionFile } from "./versions.mjs";
 
 const ROOT = resolve(process.env.B2D_ROOT ?? process.cwd());
+const DOCS_URL = "https://docs.krecik.tech/game-engine";
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(`--${name}`);
 const value = (name, fallback = null) => {
@@ -269,8 +270,8 @@ const buildArtifacts = async () => {
     "",
     "## Known limitations",
     "",
-    "- Patrz strona `#compat` w dokumentacji: lista przeglądarek, znane ograniczenia i procedura zgłoszeń.",
-    "- Otwarty dług techniczny: `docs/TECH_DEBT.md` (waga S1 blokuje wydanie).",
+    `- Przeglądarki, znane ograniczenia i procedura zgłoszeń: ${DOCS_URL}`,
+    "- Rdzeń C++: `native/core` (testy `ctest`, benchmark `bench_core`, ABI sprawdzane w CI).",
     "",
     "## Artifacts",
     "",
@@ -289,7 +290,7 @@ const buildArtifacts = async () => {
     notes.push(`| \`${name}\` | ${kb(statSync(join(outDir, name)).size)} | \`${hash.slice(0, 16)}…\` |`);
   }
   notes.push("");
-  notes.push("Wygenerowane przez `node scripts/release.mjs --artifacts`. Szablon i zasady: `docs/RELEASE_NOTES_TEMPLATE.md`.");
+  notes.push(`Wygenerowane przez \`node scripts/release.mjs --artifacts\`. Zasady wydania: ${DOCS_URL}`);
   notes.push("");
 
   writeFileSync(join(outDir, "release-notes.md"), notes.join("\n"), "utf8");
@@ -334,27 +335,10 @@ const check = () => {
     problems.push(`CHANGELOG.md nie ma sekcji "## [${versions.rootVersion}]"`);
   }
 
-  for (const file of ["docs/RELEASE_NOTES_TEMPLATE.md", "docs/TECH_DEBT.md", "docs/adr/README.md"]) {
+  if (existsSync(join(ROOT, "docs"))) problems.push("Katalog docs/ wrócił — dokumentacja żyje pod " + DOCS_URL);
+
+  for (const file of ["native/core/CMakeLists.txt", "native/core/include/b2d/core/scene.hpp", "native/core/src/bindings.cpp"]) {
     if (!existsSync(join(ROOT, file))) problems.push(`Brak ${file}`);
-  }
-
-  const debtPath = join(ROOT, "docs/TECH_DEBT.md");
-  if (existsSync(debtPath)) {
-    const debt = readFileSync(debtPath, "utf8");
-    const open = debt.slice(debt.indexOf("## Otwarte"), debt.indexOf("## Spłacone"));
-    for (const line of open.split("\n")) {
-      if (!line.startsWith("| D-")) continue;
-      const cells = line.split("|").map((cell) => cell.trim());
-      if (cells[2] === "S1") problems.push(`Otwarty dług S1: ${cells[1]} — ${cells[4]}`);
-    }
-  }
-
-  const adrDir = join(ROOT, "docs/adr");
-  if (existsSync(adrDir)) {
-    const index = readFileSync(join(adrDir, "README.md"), "utf8");
-    for (const file of readdirSync(adrDir).filter((name) => /^\d{4}-.*\.md$/.test(name))) {
-      if (!index.includes(`(${file})`)) problems.push(`docs/adr/README.md nie linkuje ${basename(file)}`);
-    }
   }
 
   const manifestPath = join(ROOT, "dist/release.json");
@@ -367,7 +351,7 @@ const check = () => {
 
   log(`Kontrola wydania ${versions.rootVersion}`);
   if (problems.length === 0) {
-    log("OK: wersje, changelog, szablon, ADR i build są spójne.");
+    log(`OK: wersje, changelog, rdzeń C++ i build są spójne. Dokumentacja: ${DOCS_URL}`);
     return;
   }
   console.error("BŁĄD: wydanie nie jest gotowe.");

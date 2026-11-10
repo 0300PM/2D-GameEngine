@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — narzędzie CLI bez deklaracji typów
@@ -78,21 +78,22 @@ describe("release contract", () => {
     }
   });
 
-  it("ships a release notes template with the required sections", () => {
-    const template = read("docs/RELEASE_NOTES_TEMPLATE.md");
-    for (const section of ["## Highlights", "## Breaking changes", "## Migrations", "## Quality gate", "## Artifacts", "## Stability"]) {
-      expect(template).toContain(section);
+  it("keeps documentation out of the repository and points to the docs site", () => {
+    expect(existsSync(join(process.cwd(), "docs"))).toBe(false);
+    const readme = read("README.md");
+    expect(readme).toContain("https://docs.krecik.tech/game-engine");
+  });
+
+  it("ships the native core that the engine delegates to", () => {
+    for (const file of [
+      "native/core/include/b2d/core/world.hpp",
+      "native/core/include/b2d/core/scene.hpp",
+      "native/core/include/b2d/core/time.hpp",
+      "native/core/include/b2d/core/random.hpp",
+      "native/core/src/bindings.cpp"
+    ]) {
+      expect(existsSync(join(process.cwd(), file)), file).toBe(true);
     }
   });
 
-  it("keeps the technical debt and ADR indexes in sync with the files on disk", () => {
-    const debt = read("docs/TECH_DEBT.md");
-    expect(debt).toMatch(/D-\d{3}/);
-    const adrIndex = read("docs/adr/README.md");
-    const numbers = [...adrIndex.matchAll(/\((\d{4})-[a-z0-9-]+\.md\)/g)].map((match) => match[1]);
-    expect(numbers.length).toBeGreaterThanOrEqual(6);
-    for (const number of numbers) {
-      expect(adrIndex, `wpis ${number}`).toContain(`(${number}-`);
-    }
-  });
 });

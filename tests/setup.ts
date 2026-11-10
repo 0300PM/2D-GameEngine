@@ -17,3 +17,7 @@ if (typeof HTMLCanvasElement !== "undefined" && !(HTMLCanvasElement.prototype as
     return orig ? (orig as unknown as (t: string) => unknown).call(this, type) as never : null;
   } as unknown as typeof HTMLCanvasElement.prototype.getContext;
 }
+
+import { installTestCore } from "./helpers/native";
+
+installTestCore();

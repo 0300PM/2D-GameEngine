@@ -36,7 +36,7 @@ write(
   "nginx.conf",
   `
 # Browser2DEngine — ${outManifest.name} ${outManifest.version} (${outManifest.buildId})
-# Wklej blok server do /etc/nginx/conf.d/b2d.conf. Dokumentacja: docs/index.html#deploy
+# Wklej blok server do /etc/nginx/conf.d/b2d.conf. Dokumentacja: https://docs.krecik.tech/game-engine
 server {
     listen 443 ssl http2;
     server_name game.example.com;

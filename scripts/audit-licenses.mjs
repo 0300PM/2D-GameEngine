@@ -1,10 +1,11 @@
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { extname, join, resolve } from "node:path";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { dirname, extname, join, resolve } from "node:path";
 
 const ROOT = resolve(process.cwd());
 const LOCK = join(ROOT, "package-lock.json");
 const ASSETS = join(ROOT, "apps/playground/public/assets");
-const REPORT = join(ROOT, "docs", "LICENSES.md");
+const REPORT = join(ROOT, "config", "licenses-report.md");
+const DOCS_URL = "https://docs.krecik.tech/game-engine";
 
 const ALLOWED = new Set([
   "MIT",
@@ -146,11 +147,11 @@ ${assetRows || "| — | — | — | — |"}
 - \`npm run audit:licenses\` kończy się kodem 1 przy nieznanej lub niedozwolonej licencji, brakującym wpisie zasobu albo nieaktualnym raporcie.
 `;
 
-const exists = existsSync(REPORT);
-const current = exists ? readFileSync(REPORT, "utf8") : "";
+const current = existsSync(REPORT) ? readFileSync(REPORT, "utf8") : "";
 const stale = current !== generated;
 
 if (!check) {
+  mkdirSync(dirname(REPORT), { recursive: true });
   writeFileSync(REPORT, generated, "utf8");
 }
 
@@ -159,7 +160,8 @@ if (!quiet) {
     `Licencje: ${counts.total} pakietów (${counts.runtime} runtime) · dozwolone ${counts.allowed} · przegląd ${counts.review} · nieznane ${counts.unknown} · niedozwolone ${counts.forbidden}`
   );
   console.log(`Zasoby: ${assetEntries.length} plików, wpisy w LICENSES.json: ${assetEntries.filter((entry) => entry.license).length}`);
-  if (check && stale) console.log(`Raport nieaktualny: ${REPORT} (uruchom npm run audit:licenses:write)`);
+  if (check && stale) console.log(`Raport nieaktualny: ${REPORT} (uruchom npm run audit:licenses)`);
+  console.log(`Pełna dokumentacja: ${DOCS_URL}`);
 }
 
 if (problems.length > 0) {
