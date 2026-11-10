@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { formatMigrationSummary, migrateProjectText, migrateSaveText, migrateText } from "../../packages/engine/src/project/MigrateTool";
+import {
+  formatMigrationSummary,
+  migrateProjectText,
+  migrateSaveText,
+  migrateText
+} from "../../packages/engine/src/project/MigrateTool";
 
 const v1 = JSON.stringify({
   formatVersion: 1,
@@ -12,7 +17,14 @@ const v1 = JSON.stringify({
 });
 
 const save = (version: number, extra: Record<string, unknown> = {}) =>
-  JSON.stringify({ version, playerId: "demo", slot: "auto", updatedAt: "2026-01-01T00:00:00.000Z", progress: { crystals: 3 }, ...extra });
+  JSON.stringify({
+    version,
+    playerId: "demo",
+    slot: "auto",
+    updatedAt: "2026-01-01T00:00:00.000Z",
+    progress: { crystals: 3 },
+    ...extra
+  });
 
 describe("project migration", () => {
   it("migrates v1 to the current format and returns pretty JSON", () => {

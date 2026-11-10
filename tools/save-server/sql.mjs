@@ -37,6 +37,7 @@ export const upsertStatement = (dialect, tableInput) => {
 export const deleteStatement = (dialect, tableInput) =>
   `DELETE FROM ${resolveTable(tableInput)} WHERE entry_key = ${placeholder(dialect, 1)}`;
 
-export const keysStatement = (dialect, tableInput) => `SELECT entry_key FROM ${resolveTable(tableInput)} ORDER BY entry_key`;
+export const keysStatement = (dialect, tableInput) =>
+  `SELECT entry_key FROM ${resolveTable(tableInput)} ORDER BY entry_key`;
 
 export const clearStatement = (dialect, tableInput) => `DELETE FROM ${resolveTable(tableInput)}`;

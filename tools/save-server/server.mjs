@@ -233,7 +233,7 @@ const isMain = process.argv[1] && import.meta.url === `file://${path.resolve(pro
 if (isMain) {
   const argument = process.argv.find((entry) => entry.startsWith("--print-schema"));
   if (argument) {
-    const dialect = argument.includes("=") ? argument.split("=")[1] : process.env.SAVE_DIALECT ?? "postgres";
+    const dialect = argument.includes("=") ? argument.split("=")[1] : (process.env.SAVE_DIALECT ?? "postgres");
     process.stdout.write(schemaStatements(dialect, process.env.SAVE_TABLE ?? "b2d_entries").join(";\n") + ";\n");
     process.exit(0);
   }
