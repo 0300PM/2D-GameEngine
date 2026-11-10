@@ -6,168 +6,168 @@
     "platform": "win32-x64",
     "cpu": "AMD Ryzen 7 5700X 8-Core Processor",
     "cores": 16,
-    "recordedAt": "2026-11-10T09:30:53.649Z"
+    "recordedAt": "2026-11-10T09:43:09.268Z"
   },
   "benchmarks": [
     {
       "group": "objects",
       "name": "create 2 000 objects",
-      "hz": 4095.1574762842943,
-      "meanMs": 0.2466412878938053,
-      "medianMs": 0.24419085365853657,
-      "iterations": 4065
+      "hz": 4039.400149077861,
+      "meanMs": 0.25260186528515566,
+      "medianMs": 0.24756150990099016,
+      "iterations": 3965
     },
     {
       "group": "objects",
       "name": "create 2 000 objects with a component",
-      "hz": 3516.8910682956234,
-      "meanMs": 0.28641657907690904,
-      "medianMs": 0.2843420454545457,
-      "iterations": 3494
+      "hz": 3217.313543191433,
+      "meanMs": 0.3118654089503466,
+      "medianMs": 0.3108183229813667,
+      "iterations": 3209
     },
     {
       "group": "objects",
       "name": "update 2 000 transforms and read world space",
-      "hz": 3711.2720272486317,
-      "meanMs": 0.27005209547916265,
-      "medianMs": 0.2694493943472407,
-      "iterations": 3705
+      "hz": 3485.226981648638,
+      "meanMs": 0.2886998117635456,
+      "medianMs": 0.28692535816618864,
+      "iterations": 3469
     },
     {
       "group": "objects",
       "name": "destroy 2 000 objects",
-      "hz": 1946.49242065797,
-      "meanMs": 0.5156418632472001,
-      "medianMs": 0.5137446153846166,
-      "iterations": 1942
+      "hz": 1712.492910379211,
+      "meanMs": 0.5842328953104563,
+      "medianMs": 0.5839440233236131,
+      "iterations": 1715
     },
     {
       "group": "queries",
       "name": "index 2 000 objects",
-      "hz": 1549.8171215796572,
-      "meanMs": 0.6450432966462423,
-      "medianMs": 0.6452374193548372,
-      "iterations": 1558
+      "hz": 1583.4877691804272,
+      "meanMs": 0.6350152421480306,
+      "medianMs": 0.6315173501577309,
+      "iterations": 1577
     },
     {
       "group": "queries",
       "name": "find by id in 2 000 objects",
-      "hz": 1646.0371655240021,
-      "meanMs": 0.6242851920530894,
-      "medianMs": 0.6075196969696965,
-      "iterations": 1610
+      "hz": 1522.175603168319,
+      "meanMs": 0.6576947623985472,
+      "medianMs": 0.6569544262295092,
+      "iterations": 1523
     },
     {
       "group": "queries",
       "name": "find 1 000 by tag",
-      "hz": 1624.753670398282,
-      "meanMs": 0.6187882582320671,
-      "medianMs": 0.6154779141104302,
-      "iterations": 1621
+      "hz": 1525.8671887193484,
+      "meanMs": 0.6935413851052419,
+      "medianMs": 0.6553650326797408,
+      "iterations": 1459
     },
     {
       "group": "queries",
       "name": "find by two tags (all) in 2 000 objects",
-      "hz": 1539.9915300465748,
-      "meanMs": 0.6446618309433776,
-      "medianMs": 0.649354220779225,
-      "iterations": 1554
+      "hz": 1379.4344318829258,
+      "meanMs": 0.729752847346153,
+      "medianMs": 0.7249347826086968,
+      "iterations": 1377
     },
     {
       "group": "collisions",
       "name": "register 200 overlap pairs",
-      "hz": 266644.7333552661,
-      "meanMs": 0.0037791653903484065,
-      "medianMs": 0.0037503084625625906,
-      "iterations": 265112
+      "hz": 254015.3007169353,
+      "meanMs": 0.004112305450658516,
+      "medianMs": 0.003936770726714454,
+      "iterations": 244572
     },
     {
       "group": "collisions",
       "name": "dispatch 5 000 overlap callbacks",
-      "hz": 779243.4415131209,
-      "meanMs": 0.0012881499514400257,
-      "medianMs": 0.001283296010882322,
-      "iterations": 776359
+      "hz": 713425.7194456876,
+      "meanMs": 0.001408720448750463,
+      "medianMs": 0.001401687621770873,
+      "iterations": 710008
     },
     {
       "group": "collisions",
       "name": "broad-phase AABB over 5 000 pairs",
-      "hz": 154258.30315866604,
-      "meanMs": 0.006485069447119527,
-      "medianMs": 0.006482633216647186,
-      "iterations": 154240
+      "hz": 141034.78844781627,
+      "meanMs": 0.007174818421386367,
+      "medianMs": 0.007090449179281792,
+      "iterations": 139528
     },
     {
       "group": "tilemap",
       "name": "import 128×128 Tiled map",
-      "hz": 3022.5711481845055,
-      "meanMs": 0.342815514373276,
-      "medianMs": 0.33084415584415466,
-      "iterations": 2952
+      "hz": 2639.3991949084057,
+      "meanMs": 0.3856774618869247,
+      "medianMs": 0.37887410207939487,
+      "iterations": 2611
     },
     {
       "group": "tilemap",
       "name": "import and collect spawns",
-      "hz": 2987.6143899096546,
-      "meanMs": 0.3377445221926078,
-      "medianMs": 0.3347152173913046,
-      "iterations": 2978
+      "hz": 2758.3546414563925,
+      "meanMs": 0.3637587625649531,
+      "medianMs": 0.36253496376811317,
+      "iterations": 2758
     },
     {
       "group": "assets",
       "name": "register 500 assets",
-      "hz": 7198.791042725628,
-      "meanMs": 0.14743789624721595,
-      "medianMs": 0.13891221374045842,
-      "iterations": 6868
+      "hz": 6873.185479033553,
+      "meanMs": 0.14518594102670243,
+      "medianMs": 0.14549294545454508,
+      "iterations": 6892
     },
     {
       "group": "assets",
       "name": "validate a 500 asset manifest",
-      "hz": 4298.912375169033,
-      "meanMs": 0.2393815992861439,
-      "medianMs": 0.2326169767441887,
-      "iterations": 4191
+      "hz": 3972.2035686876234,
+      "meanMs": 0.254381399375326,
+      "medianMs": 0.25174943396226546,
+      "iterations": 3937
     },
     {
       "group": "assets",
       "name": "build a size report for 500 assets",
-      "hz": 6665.507447980068,
-      "meanMs": 0.15113393693690186,
-      "medianMs": 0.1500260869565216,
-      "iterations": 6621
+      "hz": 6073.596999093189,
+      "meanMs": 0.16965334121330494,
+      "medianMs": 0.16464707818930097,
+      "iterations": 5909
     },
     {
       "group": "assets",
       "name": "diagnose usage of 500 assets",
-      "hz": 3348.8965385905108,
-      "meanMs": 0.29910915596478577,
-      "medianMs": 0.2986058208955245,
-      "iterations": 3347
+      "hz": 3053.100971195907,
+      "meanMs": 0.3278266226020714,
+      "medianMs": 0.32753584288052473,
+      "iterations": 3054
     },
     {
       "group": "native",
       "name": "cpp loop with seeded random (240 frames x 256 draws)",
-      "hz": 17.717820672621386,
-      "meanMs": 57.28052000000025,
-      "medianMs": 56.44035000000076,
+      "hz": 17.0128715132652,
+      "meanMs": 58.85172999999977,
+      "medianMs": 58.77902499999982,
       "iterations": 20
     },
     {
       "group": "native",
       "name": "cpp transform composition (10 000)",
-      "hz": 12644.570084616942,
-      "meanMs": 0.07985210077559758,
-      "medianMs": 0.0790853301700288,
-      "iterations": 12543
+      "hz": 12517.114805037465,
+      "meanMs": 0.0794919741850633,
+      "medianMs": 0.07989061501597428,
+      "iterations": 12585
     },
     {
       "group": "native",
       "name": "cpp component schedule (4 000 entries)",
-      "hz": 751.2561151501504,
-      "meanMs": 1.3382193470778616,
-      "medianMs": 1.3311039735099317,
-      "iterations": 750
+      "hz": 738.6597019707738,
+      "meanMs": 1.3679801306431485,
+      "medianMs": 1.353803378378379,
+      "iterations": 733
     }
   ]
 }
