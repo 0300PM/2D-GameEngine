@@ -1,5 +1,6 @@
 import { LocalStorageStore, MemoryStore, PlayerSaveRepository, createEngine, type Engine } from "@engine";
 import { GameScene } from "./scenes/GameScene";
+import { CoreSandboxScene } from "./scenes/CoreSandboxScene";
 import { MenuScene } from "./scenes/MenuScene";
 import { defaultExampleId, findExample, type PlaygroundExample } from "./examples";
 import { mountShell, type Shell } from "./ui/shell";
@@ -82,6 +83,7 @@ onLangChange((lang) => writeUrlState({ lang }));
 
 engine.registerScene(new MenuScene());
 engine.registerScene(new GameScene());
+engine.registerScene(new CoreSandboxScene());
 
 engine.getEvents().on("request:scene", (payload: unknown) => {
   runScene((payload as { to: string }).to);

@@ -83,6 +83,18 @@ export const examples: PlaygroundExample[] = [
     },
     tags: ["wasm", "c++", "pathfinding"],
     status: "planned"
+  },
+  {
+    id: "core-sandbox",
+    index: "07",
+    title: { pl: "Sandbox rdzenia C++", en: "C++ core sandbox" },
+    description: {
+      pl: "Scena napędzana rdzeniem C++: hierarchia obiektów, fazy komponentów, deterministyczny Random i pomiar przepustowości pętli.",
+      en: "A scene driven by the C++ core: object hierarchy, component phases, deterministic Random and a loop throughput reading."
+    },
+    tags: ["c++", "wasm", "components", "benchmark"],
+    status: "ready",
+    scene: "core-sandbox"
   }
 ];
 
