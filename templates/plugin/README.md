@@ -14,4 +14,4 @@
   cleanup functions from `panel.mount` / use `onDispose`.
 - A system that throws is disabled after three failures; keep one system per concern.
 
-See `docs/index.html#plugins` for the full contract.
+Full plugin contract: <https://docs.krecik.tech/game-engine#plugins>.

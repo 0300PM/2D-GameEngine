@@ -1,6 +1,15 @@
 {
   "semi": true,
   "singleQuote": false,
-  "printWidth": 100,
-  "tabWidth": 2
+  "printWidth": 120,
+  "tabWidth": 2,
+  "trailingComma": "none",
+  "arrowParens": "always",
+  "endOfLine": "auto",
+  "overrides": [
+    {
+      "files": ["*.yml", "*.yaml"],
+      "options": { "printWidth": 120 }
+    }
+  ]
 }

@@ -34,15 +34,15 @@ benchmarks/              progi regresji TS i C++
 
 Logika decydująca o wyniku gry żyje w `native/core` i jest kompilowana do WebAssembly.
 
-| Moduł | Nagłówek | Odpowiada za |
-|-------|----------|--------------|
-| World | `b2d/core/world.hpp` | hierarchia obiektów, transformacje światowe, aktywacja, tagi, lifecycle |
-| Scene | `b2d/core/scene.hpp` | obiekty sceny, kolejka niszczenia, harmonogram komponentów, statystyki klatki |
-| SceneManager | `b2d/core/scene.hpp` | rejestracja, start/stop, czyszczenie poprzedniej sceny |
-| Component schedule | `b2d/core/component.hpp` | fazy `input → behavior → physics → animation → render`, stabilne sortowanie |
-| Time | `b2d/core/time.hpp` | zegar gry i rzeczywisty, clamp, fixed step, pauza |
-| Random | `b2d/core/random.hpp` | deterministyczny PRNG: seed, fork, save/load stanu |
-| Hash | `b2d/core/hash.hpp` | FNV-1a 32/64 do sum kontrolnych i digestów |
+| Moduł              | Nagłówek                 | Odpowiada za                                                                  |
+| ------------------ | ------------------------ | ----------------------------------------------------------------------------- |
+| World              | `b2d/core/world.hpp`     | hierarchia obiektów, transformacje światowe, aktywacja, tagi, lifecycle       |
+| Scene              | `b2d/core/scene.hpp`     | obiekty sceny, kolejka niszczenia, harmonogram komponentów, statystyki klatki |
+| SceneManager       | `b2d/core/scene.hpp`     | rejestracja, start/stop, czyszczenie poprzedniej sceny                        |
+| Component schedule | `b2d/core/component.hpp` | fazy `input → behavior → physics → animation → render`, stabilne sortowanie   |
+| Time               | `b2d/core/time.hpp`      | zegar gry i rzeczywisty, clamp, fixed step, pauza                             |
+| Random             | `b2d/core/random.hpp`    | deterministyczny PRNG: seed, fork, save/load stanu                            |
+| Hash               | `b2d/core/hash.hpp`      | FNV-1a 32/64 do sum kontrolnych i digestów                                    |
 
 Granica JS↔C++ to płaskie funkcje `b2d_*` z ABI 1 (`native/core/src/bindings.cpp`).
 `NativeCore` wykrywa brak modułu i raportuje `impl: "typescript"` — gra działa dalej,
@@ -105,20 +105,20 @@ engine.start("my-scene");
 
 ## Konfiguracja
 
-| Pole | Typ | Opis |
-|------|-----|------|
-| `parent` | `string \| HTMLElement` | kontener DOM |
-| `width` / `height` | `number` | logiczny rozmiar gry |
-| `backgroundColor` | `string` | hex, np. `#151515` |
-| `scaleMode` | `fit \| fill \| fixed \| expand` | tryb skalowania |
-| `debug` | `boolean` | overlay FPS + panel logów |
-| `pauseOnHidden` | `boolean` | pauza przy ukryciu karty |
-| `maxDeltaTime` | `number` | clamp dt po powrocie z tła |
-| `seed` | `number` | ziarno `Random` |
-| `fixedStep` | `{ hz, maxSteps? }` | stały krok aktualizacji |
-| `physics.gravity` | `{ x, y }` | grawitacja Arcade |
-| `inputMap` | `Record<akcja, kod[]>` | mapowanie klawiszy |
-| `wasm` | `{ wasmUrl?, required }` | moduł rdzenia C++ |
+| Pole               | Typ                              | Opis                       |
+| ------------------ | -------------------------------- | -------------------------- |
+| `parent`           | `string \| HTMLElement`          | kontener DOM               |
+| `width` / `height` | `number`                         | logiczny rozmiar gry       |
+| `backgroundColor`  | `string`                         | hex, np. `#151515`         |
+| `scaleMode`        | `fit \| fill \| fixed \| expand` | tryb skalowania            |
+| `debug`            | `boolean`                        | overlay FPS + panel logów  |
+| `pauseOnHidden`    | `boolean`                        | pauza przy ukryciu karty   |
+| `maxDeltaTime`     | `number`                         | clamp dt po powrocie z tła |
+| `seed`             | `number`                         | ziarno `Random`            |
+| `fixedStep`        | `{ hz, maxSteps? }`              | stały krok aktualizacji    |
+| `physics.gravity`  | `{ x, y }`                       | grawitacja Arcade          |
+| `inputMap`         | `Record<akcja, kod[]>`           | mapowanie klawiszy         |
+| `wasm`             | `{ wasmUrl?, required }`         | moduł rdzenia C++          |
 
 ## Podsystemy
 
@@ -134,27 +134,27 @@ engine.start("my-scene");
 
 ## Przykłady
 
-| Katalog | Co pokazuje |
-|---------|-------------|
-| `examples/top-down` | gra referencyjna: sceny, input, kolizje, kamera, HUD |
-| `examples/plugins/session-stats` | plugin: system + panel + storage |
+| Katalog                            | Co pokazuje                                                  |
+| ---------------------------------- | ------------------------------------------------------------ |
+| `examples/top-down`                | gra referencyjna: sceny, input, kolizje, kamera, HUD         |
+| `examples/plugins/session-stats`   | plugin: system + panel + storage                             |
 | `examples/plugins/telemetry-panel` | plugin raportujący rdzeń (`core:ready`), ABI i przepustowość |
-| `examples/native-core` | samodzielny host C++: fixed step, RNG, hierarchia, digest |
+| `examples/native-core`             | samodzielny host C++: fixed step, RNG, hierarchia, digest    |
 
 ## Skrypty
 
-| Skrypt | Opis |
-|--------|------|
-| `npm run dev` | Vite dev (playground) |
-| `npm run build` | typecheck + build do `dist/` |
-| `npm test` | Vitest |
-| `npm run native:build` | CMake build rdzenia |
-| `npm run native:test` | CMake + ctest |
-| `npm run native:bench` | benchmark C++ → `benchmarks/native-latest.json` |
-| `npm run native:example` | przykład hosta C++ |
-| `npm run examples:check` | testy przykładów |
-| `npm run bench` / `npm run bench:check` | benchmarki TS i progi regresji |
-| `npm run verify` | pełna brama jakości |
+| Skrypt                                  | Opis                                            |
+| --------------------------------------- | ----------------------------------------------- |
+| `npm run dev`                           | Vite dev (playground)                           |
+| `npm run build`                         | typecheck + build do `dist/`                    |
+| `npm test`                              | Vitest                                          |
+| `npm run native:build`                  | CMake build rdzenia                             |
+| `npm run native:test`                   | CMake + ctest                                   |
+| `npm run native:bench`                  | benchmark C++ → `benchmarks/native-latest.json` |
+| `npm run native:example`                | przykład hosta C++                              |
+| `npm run examples:check`                | testy przykładów                                |
+| `npm run bench` / `npm run bench:check` | benchmarki TS i progi regresji                  |
+| `npm run verify`                        | pełna brama jakości                             |
 
 ## Dokumentacja
 

@@ -2,51 +2,123 @@ name: CI
 
 on:
   push:
+    branches: ["**"]
   pull_request:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 env:
-  NODE_VERSION: 20
+  NODE_VERSION: "20"
+  EMSDK_VERSION: "3.1.61"
+  B2D_NATIVE_BUILD: "1"
 
 jobs:
-  native:
-    name: C++ core (build, tests, benchmark)
+  changes:
+    name: Workspace fingerprint
     runs-on: ubuntu-latest
+    outputs:
+      native: ${{ steps.scope.outputs.native }}
+      wasm: ${{ steps.scope.outputs.wasm }}
+      docs: ${{ steps.scope.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: scope
+        name: Resolve changed areas
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="${{ github.event.pull_request.base.sha || github.event.before || '' }}"
+          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            echo "native=true" >> "$GITHUB_OUTPUT"
+            echo "wasm=true" >> "$GITHUB_OUTPUT"
+            echo "docs=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed="$(git diff --name-only "$base" HEAD || true)"
+          printf '%s\n' "$changed" > changed.txt
+          if printf '%s\n' "$changed" | grep -qE '^(native/|examples/native-core/|config/native\.ts)'; then
+            echo "native=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "native=false" >> "$GITHUB_OUTPUT"
+          fi
+          if printf '%s\n' "$changed" | grep -qE '^(native/core/(src|include|CMakeLists\.txt)|scripts/build-wasm\.mjs|packages/wasm-bridge/)'; then
+            echo "wasm=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "wasm=false" >> "$GITHUB_OUTPUT"
+          fi
+          if printf '%s\n' "$changed" | grep -qiE '^(docs/|.*\.md$)'; then
+            echo "docs=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "docs=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  native:
+    name: Native core (C++23 build, ctest, benchmark)
+    runs-on: ${{ matrix.os }}
+    needs: changes
+    if: needs.changes.outputs.native == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: lukka/get-cmake@latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
       - name: Configure
         run: cmake -S native/core -B build-native -DCMAKE_BUILD_TYPE=Release
       - name: Build
-        run: cmake --build build-native --parallel
-      - name: Test
-        run: ctest --test-dir build-native --output-on-failure
+        run: cmake --build build-native --config Release --parallel
+      - name: Unit tests (ctest)
+        run: ctest --test-dir build-native --output-on-failure -C Release
       - name: Benchmark
-        run: ./build-native/bench_core
+        run: cmake --build build-native --config Release --target bench_core --parallel
+      - name: Benchmark run
+        shell: bash
+        run: |
+          set -euo pipefail
+          binary="build-native/bench_core"
+          [ -f "$binary" ] || binary="build-native/Release/bench_core.exe"
+          "$binary"
+      - name: Native examples (deterministic reports)
+        run: npm ci && npm run examples:native
 
   wasm:
-    name: C++ core to WebAssembly
+    name: Native core → WebAssembly
     runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.wasm == 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: mymindstorm/setup-emsdk@v14
         with:
-          version: 3.1.61
-      - name: Build module
-        run: emcmake cmake -S native/core -B build-wasm -DCMAKE_BUILD_TYPE=Release && cmake --build build-wasm --parallel
+          version: ${{ env.EMSDK_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Build and smoke-test the module
+        run: node scripts/build-wasm.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: core-wasm
           path: |
             build-wasm/core.js
             build-wasm/core.wasm
+            dist/wasm.json
           if-no-files-found: error
 
   verify:
-    name: Types, tests, budgets
+    name: Types, lint, unit tests, examples, budgets
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -60,11 +132,20 @@ jobs:
       - run: npm run format
       - run: npm run test:unit
       - run: npm run examples:check
+      - run: npm run bench
       - run: npm run bench:check
       - run: npm run build
+      - run: npm run build:single
       - run: npm run bundle:check
       - run: npm run audit:licenses:check
       - run: npm run release:check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmarks
+          path: |
+            benchmarks/latest.json
+            benchmarks/native-latest.json
+          if-no-files-found: warn
 
   e2e:
     name: End-to-end suites
@@ -84,21 +165,16 @@ jobs:
       - run: npm run test:compat
       - run: npm run test:hosting
 
-  examples:
-    name: Examples (native host)
+  docs:
+    name: Documentation links
     runs-on: ubuntu-latest
-    needs: native
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
     steps:
       - uses: actions/checkout@v4
-      - uses: lukka/get-cmake@latest
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
-      - run: npm run native:example
-      - run: npm run native:bench
-      - uses: actions/upload-artifact@v4
-        with:
-          name: native-benchmarks
-          path: benchmarks/native-latest.json
+      - run: node scripts/docs-check.mjs

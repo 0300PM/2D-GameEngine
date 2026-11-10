@@ -4,7 +4,7 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Versions are bumped in lockstep across every package
-in `packages/*` — see [docs/adr/0007-lockstep-versions.md](docs/adr/0007-lockstep-versions.md).
+in `packages/*` — see <https://docs.krecik.tech/game-engine#releases>.
 
 Sections are always present, even when empty, so tooling and humans look in the same place: `Added`, `Changed`,
 `Deprecated`, `Removed`, `Fixed`, `Security`. Entries are grouped by area and reference the documentation page that
@@ -25,7 +25,7 @@ describes the behaviour, not the file that implements it.
   benchmark results, bundle report, API snapshot, checksums and generated release notes in one directory.
 - `scripts/migrate.mjs`: command-line migration for project files and player saves (`--kind=project|save`,
   `--from=`, `--out=`, `--check`).
-- `docs/RELEASE_NOTES_TEMPLATE.md`, `docs/TECH_DEBT.md`, `docs/adr/` with an index and eight decision records.
+- A release-notes template, a technical-debt register and nine decision records, published on the docs site.
 - Documentation pages `#releases` (channels, release procedure, artifacts) and `#debt` (technical debt and ADRs),
   both in Polish and English.
 

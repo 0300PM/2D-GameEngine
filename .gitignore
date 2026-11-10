@@ -3,6 +3,7 @@ dist
 .env
 .DS_Store
 build
+build-native
 build-wasm
 *.wasm
 *.js.mem

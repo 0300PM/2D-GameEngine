@@ -4,7 +4,13 @@ import { ObjectIndex } from "../packages/engine/src/core/ObjectIndex";
 import { PhysicsManager } from "../packages/engine/src/systems/PhysicsManager";
 import { AssetManager } from "../packages/engine/src/systems/AssetManager";
 import { collectSpawns, importTiledMap } from "../packages/engine/src/assets/TiledMap";
-import type { ColliderHandle, ColliderPair, CollisionHandler, PhysicsPort, Vec2 } from "../packages/engine/src/core/ports";
+import type {
+  ColliderHandle,
+  ColliderPair,
+  CollisionHandler,
+  PhysicsPort,
+  Vec2
+} from "../packages/engine/src/core/ports";
 import type { AssetDescriptor } from "../packages/engine/src/assets/AssetManifest";
 import { installTestCore } from "../tests/helpers/native";
 import { benchmarkNativeCore } from "../packages/engine/src/debug/nativeBenchmark";
@@ -143,7 +149,9 @@ const buildTiledMap = (): unknown => {
         data: new Array<number>(MAP_SIZE * MAP_SIZE).fill(0).map((_, index) => (index % 11 === 0 ? 3 : 0))
       }
     ],
-    tilesets: [{ firstgid: 1, name: "tiles", tilewidth: 32, tileheight: 32, tilecount: 64, columns: 8, image: "tiles.png" }],
+    tilesets: [
+      { firstgid: 1, name: "tiles", tilewidth: 32, tileheight: 32, tilecount: 64, columns: 8, image: "tiles.png" }
+    ],
     objectgroups: [
       {
         name: "spawns",
@@ -181,8 +189,16 @@ const tiledMap = buildTiledMap();
 const player = new GameObject("player", { x: 0, y: 0 });
 const enemies = Array.from({ length: 200 }, (_, index) => new GameObject(`enemy-${index}`, { x: index, y: index }));
 
-const aabb = (ax: number, ay: number, aw: number, ah: number, bx: number, by: number, bw: number, bh: number): boolean =>
-  ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+const aabb = (
+  ax: number,
+  ay: number,
+  aw: number,
+  ah: number,
+  bx: number,
+  by: number,
+  bw: number,
+  bh: number
+): boolean => ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
 
 export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
   {
