@@ -1,10 +1,16 @@
+import { nativeCore } from "../wasm/NativeCore";
+
 export class Random {
-  private state: number;
+  private slot = -1;
+  private useNative = false;
+  private buffer: number[] = [];
+  private cursor = 0;
+  private drained = 0;
+  private nativeState = 0;
   private readonly initialSeed: number;
 
   constructor(seed = 0x9e3779b9) {
     this.initialSeed = seed >>> 0 || 1;
-    this.state = this.initialSeed;
   }
 
   get seed(): number {
@@ -12,11 +18,9 @@ export class Random {
   }
 
   next(): number {
-    this.state = (this.state + 0x6d2b79f5) >>> 0;
-    let value = this.state;
-    value = Math.imul(value ^ (value >>> 15), value | 1) >>> 0;
-    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
-    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+    if (!this.bindNative()) throw new Error("Random: native core is required");
+    const pointer = nativeCore.number("b2d_random_fill", 0, this.slot, 0, 1);
+    return pointer > 0 ? nativeCore.read(pointer, 1)[0] : 0;
   }
 
   float(min = 0, max = 1): number {
@@ -52,26 +56,84 @@ export class Random {
   }
 
   saveState(): number {
-    return this.state;
+    this.bindNative();
+    if (this.cursor < this.buffer.length && this.nativeState !== 0) return this.nativeState;
+    return nativeCore.number("b2d_random_get_state", 0, this.slot) >>> 0;
   }
 
   loadState(state: number): this {
-    this.state = state >>> 0;
+    this.bindNative();
+    this.cursor = 0;
+    this.buffer = [];
+    nativeCore.number("b2d_random_skip", 0, this.slot, this.drained);
+    nativeCore.number("b2d_random_state", 0, this.slot, state >>> 0);
+    this.nativeState = 0;
+    this.drained = 0;
     return this;
   }
 
   reset(): this {
-    this.state = this.initialSeed;
+    this.bindNative();
+    this.cursor = 0;
+    this.buffer = [];
+    this.drained = 0;
+    nativeCore.number("b2d_random_reset", 0, this.slot);
+    this.nativeState = 0;
     return this;
   }
 
   fork(salt: string | number): Random {
     const text = String(salt);
-    let hash = 2166136261;
-    for (let index = 0; index < text.length; index += 1) {
-      hash ^= text.charCodeAt(index);
-      hash = Math.imul(hash, 16777619) >>> 0;
+    const child = new Random(0);
+    child.bindNative();
+    this.bindNative();
+    const pointer = nativeCore.push(text);
+    if (pointer === 0) {
+      child.dispose();
+      throw new Error("Random.fork: native scratch buffer rejected the salt");
     }
-    return new Random((this.state ^ hash) >>> 0);
+    if (child.slot < 0) throw new Error("Random.fork: no free native slot");
+    nativeCore.number("b2d_random_fork", 0, this.slot, pointer, text.length, child.slot);
+    child.buffer = [];
+    child.cursor = 0;
+    return child;
+  }
+
+  dispose(): void {
+    if (this.slot >= 0 && !Random.freeSlots.includes(this.slot)) Random.freeSlots.push(this.slot);
+    this.slot = -1;
+    this.useNative = false;
+    this.buffer = [];
+  }
+
+  private bindNative(): boolean {
+    if (!nativeCore.isReady()) {
+      this.useNative = false;
+      return false;
+    }
+    if (!this.useNative) {
+      this.slot = Random.acquire();
+      this.useNative = true;
+      nativeCore.number("b2d_random_seed", 0, this.slot, this.initialSeed);
+      this.buffer = [];
+      this.cursor = 0;
+      this.drained = 0;
+      this.nativeState = 0;
+    }
+    return true;
+  }
+
+  private refill(count: number): void {
+    const pointer = nativeCore.number("b2d_random_fill", 0, this.slot, 0, count);
+    this.buffer = pointer > 0 ? nativeCore.read(pointer, count) : [];
+    this.cursor = 0;
+    this.drained = count;
+    this.nativeState = 0;
+  }
+
+  private static freeSlots = [7, 6, 5, 4, 3, 2, 1, 0];
+
+  private static acquire(): number {
+    return Random.freeSlots.pop() ?? -1;
   }
 }

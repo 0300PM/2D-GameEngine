@@ -41,6 +41,7 @@ export const FEATURE_STATUS: Readonly<Record<string, FeatureStatus>> = Object.fr
   diagnostics: status("diagnostics", "stable", "0.1.0", "Report sections, findings, JSON export"),
   "tiled-import": status("tiled-import", "experimental", "0.1.0", "Tiled layers and objects; API may change in a minor"),
   wasm: status("wasm", "experimental", "0.1.0", "Optional C++23 bridge, never on the critical path"),
+  "native-core": status("native-core", "stable", "0.1.0", "C++23 core: world, scene schedule, time, random, hashing"),
   ecs: status("ecs", "experimental", "0.1.0", "Prototype evaluated in benchmarks, not wired into the public API"),
   "adapter-contract": status("adapter-contract", "internal", "0.1.0", "Ports and adapters, outside semver guarantees")
 });

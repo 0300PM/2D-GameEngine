@@ -248,3 +248,11 @@ export { DEFAULT_PROJECT_LIMITS, mergeLimits, measureDepth, findUnsafeKey, byteL
 export type { ProjectLimits } from "./project/Limits";
 export type { ProjectValidateOptions } from "./project/Validate";
 export type { ProjectImportOptions } from "./project/Serialize";
+
+export { NativeCore, nativeCore } from "./wasm/NativeCore";
+export type { NativeCoreStats } from "./wasm/NativeCore";
+export { benchmarkNativeCore, formatBenchmark, DEFAULT_BENCHMARK } from "./debug/nativeBenchmark";
+export type { BenchmarkOptions, BenchmarkReport } from "./debug/nativeBenchmark";
+export { compareComponents, sortByPhase, groupByPhase } from "./core/schedule";
+export type { Schedulable } from "./core/schedule";
+export { composeTransform, identityTransform } from "./components/Transform";

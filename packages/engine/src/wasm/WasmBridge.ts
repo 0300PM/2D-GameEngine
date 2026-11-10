@@ -1,3 +1,5 @@
+import { nativeCore } from "./NativeCore";
+
 export type WasmModuleState = "idle" | "loading" | "ready" | "failed";
 
 export type WasmBridgeOptions = {
@@ -29,6 +31,10 @@ export class WasmBridge {
     return this.state === "ready";
   }
 
+  getImpl(): "cpp" | "typescript" {
+    return nativeCore.impl;
+  }
+
   async load(): Promise<void> {
     if (!this.url) {
       this.state = "idle";
@@ -43,6 +49,7 @@ export class WasmBridge {
         env: { memory: new WebAssembly.Memory({ initial: 256 }) }
       });
       this.instance = result.instance;
+      nativeCore.attach(result.instance);
       this.state = "ready";
     } catch (e) {
       this.error = e as Error;
@@ -66,5 +73,6 @@ export class WasmBridge {
     this.state = "idle";
     this.instance = null;
     this.error = null;
+    nativeCore.detach();
   }
 }
