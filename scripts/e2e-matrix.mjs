@@ -21,7 +21,13 @@ const measure = (page) =>
     const scroller = document.documentElement;
     const buttons = [...document.querySelectorAll("header button")].map((button) => {
       const box = button.getBoundingClientRect();
-      return { id: button.id || button.textContent?.trim().slice(0, 12), width: box.width, height: box.height, right: box.right, top: box.top };
+      return {
+        id: button.id || button.textContent?.trim().slice(0, 12),
+        width: box.width,
+        height: box.height,
+        right: box.right,
+        top: box.top
+      };
     });
     return {
       viewport: { width: window.innerWidth, height: window.innerHeight },
@@ -50,13 +56,28 @@ for (const device of DEVICES) {
     await waitForBoot(page);
     const metrics = await measure(page);
     check("canvas istnieje", metrics.canvasCount === 1);
-    check("brak poziomego przewijania", metrics.scrollWidth <= metrics.viewport.width + 1, `${metrics.scrollWidth} ≤ ${metrics.viewport.width}`);
-    check("canvas zachowuje proporcje 16:9", Math.abs((metrics.canvas?.ratio ?? 0) - 16 / 9) < 0.02, (metrics.canvas?.ratio ?? 0).toFixed(3));
-    check("canvas mieści się w ekranie", (metrics.canvas?.width ?? 0) <= metrics.viewport.width && (metrics.canvas?.height ?? 0) <= metrics.viewport.height);
+    check(
+      "brak poziomego przewijania",
+      metrics.scrollWidth <= metrics.viewport.width + 1,
+      `${metrics.scrollWidth} ≤ ${metrics.viewport.width}`
+    );
+    check(
+      "canvas zachowuje proporcje 16:9",
+      Math.abs((metrics.canvas?.ratio ?? 0) - 16 / 9) < 0.02,
+      (metrics.canvas?.ratio ?? 0).toFixed(3)
+    );
+    check(
+      "canvas mieści się w ekranie",
+      (metrics.canvas?.width ?? 0) <= metrics.viewport.width && (metrics.canvas?.height ?? 0) <= metrics.viewport.height
+    );
     const offscreen = metrics.buttons.filter((button) => button.right > metrics.viewport.width + 1 || button.top < 0);
     check("przyciski nagłówka w ekranie", offscreen.length === 0, offscreen.map((button) => button.id).join(","));
     const small = metrics.buttons.filter((button) => button.height < 24 || button.width < 24);
-    check("cele dotykowe ≥ 24 px", small.length === 0, small.map((button) => `${button.id}:${Math.round(button.width)}x${Math.round(button.height)}`).join(","));
+    check(
+      "cele dotykowe ≥ 24 px",
+      small.length === 0,
+      small.map((button) => `${button.id}:${Math.round(button.width)}x${Math.round(button.height)}`).join(",")
+    );
     check("brak błędów konsoli", observed.consoleErrors.length === 0, observed.consoleErrors[0] ?? "");
 
     await page.keyboard.press("KeyE");
@@ -78,7 +99,9 @@ for (const device of DEVICES) {
       });
       await page.touchscreen.tap(box.x, box.y);
       await page.waitForTimeout(250);
-      const alive = await page.evaluate(() => window.engine.isRunning() && !!document.querySelector("#game-container canvas"));
+      const alive = await page.evaluate(
+        () => window.engine.isRunning() && !!document.querySelector("#game-container canvas")
+      );
       check("dotyk nie zatrzymuje gry", alive);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
       check("brak przewijania po dotyku", overflow);
@@ -105,7 +128,11 @@ try {
   }));
   reducedReporter.check("gra działa z prefers-reduced-motion", state.running === true);
   reducedReporter.check("brak animacji CSS blokujących start", state.animations < 12, `${state.animations} animacji`);
-  reducedReporter.check("brak błędów konsoli", reducedObserver.consoleErrors.length === 0, reducedObserver.consoleErrors[0] ?? "");
+  reducedReporter.check(
+    "brak błędów konsoli",
+    reducedObserver.consoleErrors.length === 0,
+    reducedObserver.consoleErrors[0] ?? ""
+  );
 } finally {
   results.push(reducedReporter.finish(reducedObserver));
   await reduced.close();
@@ -122,10 +149,22 @@ try {
   await resizePage.setViewportSize({ width: 900, height: 620 });
   await resizePage.waitForTimeout(400);
   const after = await measure(resizePage);
-  resizeReporter.check("canvas skaluje się po zmianie rozmiaru", (after.canvas?.width ?? 0) < (before.canvas?.width ?? 0), `${Math.round(before.canvas.width)} → ${Math.round(after.canvas.width)}`);
-  resizeReporter.check("brak przewijania po zmianie rozmiaru", after.scrollWidth <= after.viewport.width + 1, `${after.scrollWidth} ≤ ${after.viewport.width}`);
+  resizeReporter.check(
+    "canvas skaluje się po zmianie rozmiaru",
+    (after.canvas?.width ?? 0) < (before.canvas?.width ?? 0),
+    `${Math.round(before.canvas.width)} → ${Math.round(after.canvas.width)}`
+  );
+  resizeReporter.check(
+    "brak przewijania po zmianie rozmiaru",
+    after.scrollWidth <= after.viewport.width + 1,
+    `${after.scrollWidth} ≤ ${after.viewport.width}`
+  );
   resizeReporter.check("silnik nadal działa", await resizePage.evaluate(() => window.engine.isRunning()));
-  resizeReporter.check("brak błędów konsoli", resizeObserver.consoleErrors.length === 0, resizeObserver.consoleErrors[0] ?? "");
+  resizeReporter.check(
+    "brak błędów konsoli",
+    resizeObserver.consoleErrors.length === 0,
+    resizeObserver.consoleErrors[0] ?? ""
+  );
 } finally {
   results.push(resizeReporter.finish(resizeObserver));
   await resize.close();

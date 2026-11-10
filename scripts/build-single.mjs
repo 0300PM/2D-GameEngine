@@ -16,7 +16,8 @@ const assetMap = () => {
   for (const name of readdirSync(ASSETS)) {
     const extension = name.split(".").pop();
     if (!extension || !MIME[extension]) continue;
-    map[name.slice(0, -(extension.length + 1))] = `data:${MIME[extension]};base64,${readFileSync(join(ASSETS, name)).toString("base64")}`;
+    map[name.slice(0, -(extension.length + 1))] =
+      `data:${MIME[extension]};base64,${readFileSync(join(ASSETS, name)).toString("base64")}`;
   }
   return map;
 };
@@ -65,4 +66,6 @@ if (!shell.includes("data-b2d-boot")) throw new Error("Boot script injection fai
 if (/\/src\/main\.ts|type="module"/.test(shell)) throw new Error("Shell still references a module entry");
 
 writeFileSync(TARGET, shell, "utf8");
-console.log(`playground.html ${(shell.length / 1024).toFixed(0)} kB, classic script, assets ${Object.keys(assetMap()).length}`);
+console.log(
+  `playground.html ${(shell.length / 1024).toFixed(0)} kB, classic script, assets ${Object.keys(assetMap()).length}`
+);

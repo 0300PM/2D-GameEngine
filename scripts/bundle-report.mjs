@@ -43,7 +43,8 @@ const describe = (report) => {
   );
   if (report.singleFile) console.log(`  single-file: ${report.singleFile.path} ${kb(report.singleFile.bytes)}`);
   const top = [...report.files].sort((a, b) => b.gzip - a.gzip).slice(0, 8);
-  for (const file of top) console.log(`    ${file.path.padEnd(38)} raw ${kb(file.bytes).padStart(10)}  gzip ${kb(file.gzip).padStart(9)}`);
+  for (const file of top)
+    console.log(`    ${file.path.padEnd(38)} raw ${kb(file.bytes).padStart(10)}  gzip ${kb(file.gzip).padStart(9)}`);
 };
 
 if (UPDATE || !existsSync(BASELINE_PATH)) {

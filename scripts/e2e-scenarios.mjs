@@ -73,7 +73,14 @@ const steerUntil = async (predicate, timeoutMs) => {
     if (target.y - state.player.y > 12) keys.add("KeyS");
     if (target.y - state.player.y < -12) keys.add("KeyW");
     await press(keys);
-    if (process.env.B2D_E2E_DEBUG) console.log('    steer', Math.round(state.player.x), Math.round(state.player.y), `d=${Math.round(target.distance)}`, [...keys].join('+'));
+    if (process.env.B2D_E2E_DEBUG)
+      console.log(
+        "    steer",
+        Math.round(state.player.x),
+        Math.round(state.player.y),
+        `d=${Math.round(target.distance)}`,
+        [...keys].join("+")
+      );
     await page.waitForTimeout(90);
   }
   await releaseAll();
@@ -106,7 +113,9 @@ try {
   const beforeAudio = (await readGame()).audio;
   await page.keyboard.press("KeyN");
   const mutedChanged = await page
-    .waitForFunction((before) => window.engine.getAudio().getState().muted !== before, beforeAudio.muted, { timeout: 4000 })
+    .waitForFunction((before) => window.engine.getAudio().getState().muted !== before, beforeAudio.muted, {
+      timeout: 4000
+    })
     .then(() => true)
     .catch(() => false);
   const afterAudio = (await readGame()).audio;
@@ -126,7 +135,11 @@ try {
   await page.waitForTimeout(350);
   await releaseAll();
   const stillFrozen = await readGame();
-  check("pauza zatrzymuje ruch", Math.abs(stillFrozen.player.x - frozen) < 2, `dx ${Math.round(stillFrozen.player.x - frozen)}`);
+  check(
+    "pauza zatrzymuje ruch",
+    Math.abs(stillFrozen.player.x - frozen) < 2,
+    `dx ${Math.round(stillFrozen.player.x - frozen)}`
+  );
   await page.keyboard.press("KeyP");
   await page.waitForTimeout(200);
   check("P wznawia czas", (await readGame()).paused === false);
@@ -139,7 +152,11 @@ try {
     { timeout: 15000 }
   );
   const restarted = await readGame();
-  check("R odtwarza scenę gry", restarted.sceneId === "game" && restarted.objects > 50, `${restarted.objects} obiektów`);
+  check(
+    "R odtwarza scenę gry",
+    restarted.sceneId === "game" && restarted.objects > 50,
+    `${restarted.objects} obiektów`
+  );
   check(
     "restart zachowuje zebrane kryształy",
     restarted.crystals.length === 8 - collectedCount,
@@ -183,12 +200,22 @@ try {
       findings: value.findings.length
     };
   });
-  check("raport diagnostyczny ma sekcje", ["config", "time", "scene", "assets", "physics", "profiler", "logs", "plugins", "findings"].every((key) => report.keys.includes(key)), report.keys.join(","));
+  check(
+    "raport diagnostyczny ma sekcje",
+    ["config", "time", "scene", "assets", "physics", "profiler", "logs", "plugins", "findings"].every((key) =>
+      report.keys.includes(key)
+    ),
+    report.keys.join(",")
+  );
   check("raport wskazuje scenę gry", report.scene === "game", String(report.scene));
   check("raport liczy plugin", report.plugins === 1, String(report.plugins));
 
   const saved = await page.evaluate(() => window.b2d.loadSave());
-  check("zapis gracza istnieje po zebraniu", saved !== null && saved !== undefined, JSON.stringify(saved)?.slice(0, 60));
+  check(
+    "zapis gracza istnieje po zebraniu",
+    saved !== null && saved !== undefined,
+    JSON.stringify(saved)?.slice(0, 60)
+  );
 
   await page.reload({ waitUntil: "domcontentloaded" });
   await waitForBoot(page);
@@ -208,7 +235,11 @@ try {
     example: new URLSearchParams(window.location.search).get("example"),
     ui: (window.engine.getScenes().getActiveScene()?.findByTag("ui") ?? []).map((object) => object.render?.text ?? "")
   }));
-  check("po odświeżeniu wraca ten sam przykład", reloaded.example === "top-down" && reloaded.scene === "game", `${reloaded.example}/${reloaded.scene}`);
+  check(
+    "po odświeżeniu wraca ten sam przykład",
+    reloaded.example === "top-down" && reloaded.scene === "game",
+    `${reloaded.example}/${reloaded.scene}`
+  );
   check("postęp zapisu wraca po odświeżeniu", restored, reloaded.ui.join(" ").slice(0, 40));
 
   await page.evaluate(() => window.b2d.clearSave());
@@ -219,7 +250,11 @@ try {
     ui: (window.engine.getScenes().getActiveScene()?.findByTag("ui") ?? []).map((object) => object.render?.text ?? "")
   }));
   check("wyczyszczony zapis przywraca pełną planszę", cleared.crystals === 8, `${cleared.crystals} kryształów`);
-  check("wyczyszczony zapis zeruje HUD", cleared.ui.some((text) => /0\s*\/\s*8/.test(text)), cleared.ui.join(" ").slice(0, 40));
+  check(
+    "wyczyszczony zapis zeruje HUD",
+    cleared.ui.some((text) => /0\s*\/\s*8/.test(text)),
+    cleared.ui.join(" ").slice(0, 40)
+  );
 } finally {
   await releaseAll();
   await context.close();
@@ -248,10 +283,22 @@ try {
       bootError: document.getElementById("boot-error")?.classList.contains("on") ?? false
     };
   });
-  missingReporter.check("gra startuje bez pliku gracza", state.running && state.canvas && state.objects > 50, `${state.objects} obiektów`);
+  missingReporter.check(
+    "gra startuje bez pliku gracza",
+    state.running && state.canvas && state.objects > 50,
+    `${state.objects} obiektów`
+  );
   missingReporter.check("ekran błędu startowego się nie pokazuje", state.bootError === false);
-  missingReporter.check("raport zasobów wskazuje brakujący plik", state.failed.includes("player"), state.failed.join(","));
-  missingReporter.check("brak wyjątków strony", missingObserver.pageErrors.length === 0, missingObserver.pageErrors[0] ?? "");
+  missingReporter.check(
+    "raport zasobów wskazuje brakujący plik",
+    state.failed.includes("player"),
+    state.failed.join(",")
+  );
+  missingReporter.check(
+    "brak wyjątków strony",
+    missingObserver.pageErrors.length === 0,
+    missingObserver.pageErrors[0] ?? ""
+  );
 } finally {
   results.push(missingReporter.finish(missingObserver));
   await resilient.close();

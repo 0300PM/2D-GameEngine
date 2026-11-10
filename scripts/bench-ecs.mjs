@@ -246,8 +246,13 @@ const runSoaQuery = (world) => {
 const report = (rows) => {
   const width = Math.max(...rows.map((row) => row.label.length)) + 2;
   for (const row of rows) {
-    const perFrame = row.label.startsWith("update") || row.label.startsWith("destroy") ? `${(row.ms / FRAMES).toFixed(3)} ms/frame` : "";
-    console.log(`${row.label.padEnd(width)}${String(row.value).padStart(12)}${String(row.ms).padStart(10)} ms  ${perFrame}`);
+    const perFrame =
+      row.label.startsWith("update") || row.label.startsWith("destroy")
+        ? `${(row.ms / FRAMES).toFixed(3)} ms/frame`
+        : "";
+    console.log(
+      `${row.label.padEnd(width)}${String(row.value).padStart(12)}${String(row.ms).padStart(10)} ms  ${perFrame}`
+    );
   }
 };
 

@@ -29,7 +29,12 @@ const engines = [
   { name: "webkit", options: {} }
 ].filter((engine) => only.length === 0 || only.includes(engine.name));
 
-const server = await createHostingServer({ root: join(ROOT, "dist"), host: "127.0.0.1", csp: "strict", cache: "immutable" });
+const server = await createHostingServer({
+  root: join(ROOT, "dist"),
+  host: "127.0.0.1",
+  csp: "strict",
+  cache: "immutable"
+});
 
 const readGame = (page) =>
   page.evaluate(() => {
@@ -54,7 +59,9 @@ for (const engine of engines) {
   try {
     browser = await playwright[engine.name].launch(engine.options);
   } catch (error) {
-    const reason = String(error.message ?? error).split("\n")[0].slice(0, 160);
+    const reason = String(error.message ?? error)
+      .split("\n")[0]
+      .slice(0, 160);
     reporter.check("silnik dostępny w tym środowisku", true, `POMINIĘTY — ${reason}`);
     results.push(reporter.finish({ consoleErrors: [], pageErrors: [], failedRequests: [] }));
     console.log(`  (pominięto ${engine.name}: ${reason})\n`);
@@ -76,7 +83,11 @@ for (const engine of engines) {
     await waitForBoot(page, BOOT_TIMEOUT);
 
     const boot = await readGame(page);
-    reporter.check("canvas i pętla startują", boot?.running === true && boot.objects > 50, `${boot?.objects ?? 0} obiektów`);
+    reporter.check(
+      "canvas i pętla startują",
+      boot?.running === true && boot.objects > 50,
+      `${boot?.objects ?? 0} obiektów`
+    );
     reporter.check("brak wyjątków strony", observed.pageErrors.length === 0, observed.pageErrors[0] ?? "");
     reporter.check("brak błędów konsoli", observed.consoleErrors.length === 0, observed.consoleErrors[0] ?? "");
     reporter.check("brak nieudanych żądań", observed.failedRequests.length === 0, observed.failedRequests[0] ?? "");
@@ -86,7 +97,11 @@ for (const engine of engines) {
       const gl = canvas?.getContext("webgl2") ?? canvas?.getContext("webgl") ?? null;
       return { width: canvas?.width ?? 0, height: canvas?.height ?? 0, gl: !!gl };
     });
-    reporter.check("powierzchnia gry ma rozmiar", renderer.width > 0 && renderer.height > 0, `${renderer.width}×${renderer.height}`);
+    reporter.check(
+      "powierzchnia gry ma rozmiar",
+      renderer.width > 0 && renderer.height > 0,
+      `${renderer.width}×${renderer.height}`
+    );
     reporter.check(
       "renderer działa (WebGL lub canvas 2D)",
       renderer.gl || (renderer.width > 0 && renderer.height > 0),
@@ -108,13 +123,21 @@ for (const engine of engines) {
     const paused = (await readGame(page))?.paused;
     await page.keyboard.press("p");
     const resumed = (await readGame(page))?.paused;
-    reporter.check("pauza i wznowienie czasu", paused === true && resumed === false, `pauza=${paused} powrót=${resumed}`);
+    reporter.check(
+      "pauza i wznowienie czasu",
+      paused === true && resumed === false,
+      `pauza=${paused} powrót=${resumed}`
+    );
 
     await page.keyboard.press("e");
-    await page.waitForFunction(() => document.getElementById("examples-modal")?.hidden === false, null, { timeout: 5000 });
+    await page.waitForFunction(() => document.getElementById("examples-modal")?.hidden === false, null, {
+      timeout: 5000
+    });
     const examples = await page.$$eval("#example-list li", (items) => items.length);
     await page.keyboard.press("Escape");
-    await page.waitForFunction(() => document.getElementById("examples-modal")?.hidden === true, null, { timeout: 5000 });
+    await page.waitForFunction(() => document.getElementById("examples-modal")?.hidden === true, null, {
+      timeout: 5000
+    });
     reporter.check("modal przykładów otwiera się i zamyka", examples >= 6, `${examples} pozycji`);
 
     await page.click('[data-set-lang="en"]');

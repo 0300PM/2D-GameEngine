@@ -41,7 +41,12 @@ const packages = Object.entries(lock.packages ?? {})
   .map(([path, entry]) => ({
     name: path.replace(/^.*node_modules\//, ""),
     version: String(entry.version ?? "?"),
-    license: typeof entry.license === "string" ? entry.license : Array.isArray(entry.licenses) ? entry.licenses.join(" OR ") : "",
+    license:
+      typeof entry.license === "string"
+        ? entry.license
+        : Array.isArray(entry.licenses)
+          ? entry.licenses.join(" OR ")
+          : "",
     dev: Boolean(entry.dev)
   }))
   .filter((entry) => entry.name !== "");
@@ -104,14 +109,19 @@ if (!existsSync(ASSETS)) {
   }
 }
 
-for (const entry of byStatus("unknown")) problems.push(`Zależność ${entry.name}@${entry.version} ma nieznaną licencję: ${entry.license || "brak"}`);
-for (const entry of byStatus("forbidden")) problems.push(`Zależność ${entry.name}@${entry.version} ma niedozwoloną licencję: ${entry.license}`);
+for (const entry of byStatus("unknown"))
+  problems.push(`Zależność ${entry.name}@${entry.version} ma nieznaną licencję: ${entry.license || "brak"}`);
+for (const entry of byStatus("forbidden"))
+  problems.push(`Zależność ${entry.name}@${entry.version} ma niedozwoloną licencję: ${entry.license}`);
 
 const rows = (list) =>
   list
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name))
-    .map((entry) => `| \`${entry.name}\` | ${entry.version} | ${entry.license || "—"} | ${entry.dev ? "dev" : "runtime"} | ${entry.status} |`)
+    .map(
+      (entry) =>
+        `| \`${entry.name}\` | ${entry.version} | ${entry.license || "—"} | ${entry.dev ? "dev" : "runtime"} | ${entry.status} |`
+    )
     .join("\n");
 
 const assetRows = assetEntries
@@ -159,7 +169,9 @@ if (!quiet) {
   console.log(
     `Licencje: ${counts.total} pakietów (${counts.runtime} runtime) · dozwolone ${counts.allowed} · przegląd ${counts.review} · nieznane ${counts.unknown} · niedozwolone ${counts.forbidden}`
   );
-  console.log(`Zasoby: ${assetEntries.length} plików, wpisy w LICENSES.json: ${assetEntries.filter((entry) => entry.license).length}`);
+  console.log(
+    `Zasoby: ${assetEntries.length} plików, wpisy w LICENSES.json: ${assetEntries.filter((entry) => entry.license).length}`
+  );
   if (check && stale) console.log(`Raport nieaktualny: ${REPORT} (uruchom npm run audit:licenses)`);
   console.log(`Pełna dokumentacja: ${DOCS_URL}`);
 }

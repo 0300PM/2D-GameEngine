@@ -71,9 +71,7 @@ const securityHeaders = (options, hashes) => {
 const cacheHeaders = (options, urlPath) => {
   if (options.cache === "immutable") {
     const immutable = /\/assets\/[^/]+-[A-Za-z0-9_-]{8}\.(js|css|png|jpg|webp|svg)$/.test(urlPath);
-    return immutable
-      ? { "Cache-Control": "public, max-age=31536000, immutable" }
-      : { "Cache-Control": "no-cache" };
+    return immutable ? { "Cache-Control": "public, max-age=31536000, immutable" } : { "Cache-Control": "no-cache" };
   }
   if (options.cache === "aggressive") return { "Cache-Control": "public, max-age=3600" };
   return { "Cache-Control": "no-store" };

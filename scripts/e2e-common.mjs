@@ -3,7 +3,9 @@ export const loadChromium = async () => {
     const module = await import("playwright");
     return module.chromium;
   } catch (error) {
-    console.error("Playwright is not installed. Run: npm install --no-save playwright && npx playwright install chromium");
+    console.error(
+      "Playwright is not installed. Run: npm install --no-save playwright && npx playwright install chromium"
+    );
     console.error(String(error));
     process.exit(1);
   }

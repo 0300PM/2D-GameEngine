@@ -65,8 +65,12 @@ const added = [...latestIndex.keys()].filter((name) => !baselineIndex.has(name))
 
 const pad = (value, width) => String(value).padEnd(width);
 console.log(`Benchmark comparison (tolerance ${(tolerance * 100).toFixed(0)}%)`);
-console.log(`  baseline: ${baseline.environment.recordedAt} · ${baseline.environment.cpu} · node ${baseline.environment.node}`);
-console.log(`  latest:   ${latest.environment.recordedAt} · ${latest.environment.cpu} · node ${latest.environment.node}`);
+console.log(
+  `  baseline: ${baseline.environment.recordedAt} · ${baseline.environment.cpu} · node ${baseline.environment.node}`
+);
+console.log(
+  `  latest:   ${latest.environment.recordedAt} · ${latest.environment.cpu} · node ${latest.environment.node}`
+);
 console.log("");
 console.log(`  ${pad("benchmark", 54)}${pad("baseline hz", 14)}${pad("current hz", 14)}delta`);
 for (const row of rows) {

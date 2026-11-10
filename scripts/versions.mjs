@@ -25,8 +25,10 @@ export const bumpSemver = (version, kind) => {
   const parsed = parseSemver(version);
   if (!parsed) throw new Error(`Nieprawidłowa wersja: ${version}`);
   if (kind === "major") return formatSemver({ major: parsed.major + 1, minor: 0, patch: 0, prerelease: null });
-  if (kind === "minor") return formatSemver({ major: parsed.major, minor: parsed.minor + 1, patch: 0, prerelease: null });
-  if (kind === "patch") return formatSemver({ major: parsed.major, minor: parsed.minor, patch: parsed.patch + 1, prerelease: null });
+  if (kind === "minor")
+    return formatSemver({ major: parsed.major, minor: parsed.minor + 1, patch: 0, prerelease: null });
+  if (kind === "patch")
+    return formatSemver({ major: parsed.major, minor: parsed.minor, patch: parsed.patch + 1, prerelease: null });
   throw new Error(`Nieznany typ zmiany: ${kind}`);
 };
 
@@ -105,7 +107,7 @@ export const checkVersions = (root = ROOT) => {
       problems.push("version.ts: API_LEVEL musi być liczbą całkowitą ≥ 1");
     }
     if (!["stable", "experimental"].includes(versionFile.stability ?? "")) {
-      problems.push("version.ts: API_STABILITY musi być \"stable\" albo \"experimental\"");
+      problems.push('version.ts: API_STABILITY musi być "stable" albo "experimental"');
     }
   }
 
@@ -179,7 +181,9 @@ if (isMain) {
   console.log(`Wersja rdzenia: ${report.rootVersion} · pakiety: ${report.packages.length}`);
   for (const entry of report.packages) console.log(`  ${entry.name.padEnd(28)} ${entry.version}  (${entry.file})`);
   if (report.versionFile) {
-    console.log(`  version.ts: ENGINE_VERSION ${report.versionFile.version} · API_LEVEL ${report.versionFile.apiLevel} · API_STABILITY ${report.versionFile.stability}`);
+    console.log(
+      `  version.ts: ENGINE_VERSION ${report.versionFile.version} · API_LEVEL ${report.versionFile.apiLevel} · API_STABILITY ${report.versionFile.stability}`
+    );
   }
   if (report.ok) {
     console.log(check ? "OK: wersje spójne w monorepo." : "OK");

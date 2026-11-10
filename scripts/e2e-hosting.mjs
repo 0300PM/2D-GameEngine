@@ -22,7 +22,9 @@ let chromium;
 try {
   ({ chromium } = await import("playwright"));
 } catch (error) {
-  console.error("Playwright is not installed. Run: npm install --no-save playwright && npx playwright install chromium");
+  console.error(
+    "Playwright is not installed. Run: npm install --no-save playwright && npx playwright install chromium"
+  );
   console.error(String(error));
   process.exit(1);
 }
@@ -99,7 +101,15 @@ const runScenario = async (name, options, body) => {
   await server.close();
   const ok = checks.every((entry) => entry.ok);
   console.log(`${ok ? "OK  " : "BŁĄD"} ${name} (${checks.length} sprawdzeń)`);
-  return { name, ok, checks, consoleErrors: observed.consoleErrors, pageErrors: observed.pageErrors, failedRequests: observed.failedRequests, cspViolations: observed.cspViolations };
+  return {
+    name,
+    ok,
+    checks,
+    consoleErrors: observed.consoleErrors,
+    pageErrors: observed.pageErrors,
+    failedRequests: observed.failedRequests,
+    cspViolations: observed.cspViolations
+  };
 };
 
 const results = [];
@@ -112,7 +122,11 @@ results.push(
     check("ekran błędu ukryty", !(await bootFailed(page)));
     check("brak błędów konsoli", observed.consoleErrors.length === 0, observed.consoleErrors.join(" | "));
     check("brak wyjątków strony", observed.pageErrors.length === 0, observed.pageErrors.join(" | "));
-    check("brak nieudanych żądań", observed.failedRequests.length === 0, observed.failedRequests.slice(0, 3).join(" | "));
+    check(
+      "brak nieudanych żądań",
+      observed.failedRequests.length === 0,
+      observed.failedRequests.slice(0, 3).join(" | ")
+    );
     const meta = await page.evaluate(() => ({
       build: document.querySelector('meta[name="b2d-build"]')?.content ?? "",
       base: document.querySelector('meta[name="b2d-base"]')?.content ?? ""
@@ -136,8 +150,16 @@ results.push(
     await waitForBoot(page);
     check("canvas istnieje", true);
     const assets = requests.filter((path) => path.includes("/assets/"));
-    check("zasoby pod /game/assets/", assets.length > 0 && assets.every((path) => path.startsWith("/game/assets/")), assets.slice(0, 3).join(" | "));
-    check("brak nieudanych żądań", observed.failedRequests.length === 0, observed.failedRequests.slice(0, 3).join(" | "));
+    check(
+      "zasoby pod /game/assets/",
+      assets.length > 0 && assets.every((path) => path.startsWith("/game/assets/")),
+      assets.slice(0, 3).join(" | ")
+    );
+    check(
+      "brak nieudanych żądań",
+      observed.failedRequests.length === 0,
+      observed.failedRequests.slice(0, 3).join(" | ")
+    );
     check("brak błędów konsoli", observed.consoleErrors.length === 0, observed.consoleErrors.join(" | "));
   })
 );
@@ -187,7 +209,7 @@ results.push(
     await page.waitForTimeout(300);
     const indexCache = headers.get("/")?.["cache-control"] ?? "";
     const assetPath = [...headers.keys()].find((path) => path.startsWith("/assets/") && path.endsWith(".js"));
-    const assetCache = assetPath ? headers.get(assetPath)?.["cache-control"] ?? "" : "";
+    const assetCache = assetPath ? (headers.get(assetPath)?.["cache-control"] ?? "") : "";
     check("index.html no-cache", indexCache.includes("no-cache"), indexCache);
     check("js immutable", assetCache.includes("immutable"), assetCache);
     check("nosniff", (headers.get("/")?.["x-content-type-options"] ?? "") === "nosniff");
@@ -213,7 +235,11 @@ results.push(
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitForBoot(page);
     const after = await read();
-    check("stan przeżywa odświeżenie", after.lang === "en" && after.example === "menu" && after.title === before.title, `${after.lang}/${after.example}/${after.title}`);
+    check(
+      "stan przeżywa odświeżenie",
+      after.lang === "en" && after.example === "menu" && after.title === before.title,
+      `${after.lang}/${after.example}/${after.title}`
+    );
   })
 );
 
@@ -221,7 +247,9 @@ results.push(
   await runScenario("missing-bundle", {}, async ({ page, server, check }) => {
     await page.route("**/assets/*.js", (route) => route.abort("failed"));
     await page.goto(server.url, { waitUntil: "domcontentloaded" });
-    await page.waitForFunction(() => document.getElementById("boot-error")?.classList.contains("on"), null, { timeout: 15000 });
+    await page.waitForFunction(() => document.getElementById("boot-error")?.classList.contains("on"), null, {
+      timeout: 15000
+    });
     check("ekran błędu widoczny", await bootFailed(page));
     const detail = await page.evaluate(() => ({
       message: document.getElementById("boot-error-detail")?.textContent ?? "",
@@ -231,7 +259,11 @@ results.push(
       status: document.getElementById("status")?.textContent ?? ""
     }));
     check("komunikat wskazuje moduł", detail.message.length > 0, detail.message.slice(0, 90));
-    check("diagnostyka wypełniona", detail.diag.includes("build:") && detail.diag.includes("error:"), detail.diag.split("\n")[0]);
+    check(
+      "diagnostyka wypełniona",
+      detail.diag.includes("build:") && detail.diag.includes("error:"),
+      detail.diag.split("\n")[0]
+    );
     check("przycisk kopiowania", detail.copy);
     check("przycisk raportu", detail.download);
     check("pasek statusu pokazuje błąd", detail.status.toLowerCase().includes("błąd"), detail.status);

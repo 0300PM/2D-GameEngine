@@ -151,18 +151,35 @@ const buildArtifacts = async () => {
   if (!flag("skip-tests")) {
     const report = hasTests ? readJson(join(outDir, "test-results.json")) : runTests(join(outDir, "test-results.json"));
     testSummary = summariseTests(report);
-    log(`  testy: ${testSummary.passed}/${testSummary.total} w ${testSummary.files} plikach, ${testSummary.failed} błędów`);
+    log(
+      `  testy: ${testSummary.passed}/${testSummary.total} w ${testSummary.files} plikach, ${testSummary.failed} błędów`
+    );
   }
 
-  const latestBench = existsSync(join(ROOT, "benchmarks/latest.json")) ? readJson(join(ROOT, "benchmarks/latest.json")) : null;
-  const baselineBench = existsSync(join(ROOT, "benchmarks/baseline.json")) ? readJson(join(ROOT, "benchmarks/baseline.json")) : null;
+  const latestBench = existsSync(join(ROOT, "benchmarks/latest.json"))
+    ? readJson(join(ROOT, "benchmarks/latest.json"))
+    : null;
+  const nativeBench = existsSync(join(ROOT, "benchmarks/native-latest.json"))
+    ? readJson(join(ROOT, "benchmarks/native-latest.json"))
+    : null;
+  if (nativeBench) {
+    writeFileSync(join(outDir, "benchmarks-native.json"), `${JSON.stringify(nativeBench, null, 2)}\n`, "utf8");
+    log(`  benchmarki natywne: ${nativeBench.benchmarks?.length ?? 0} przypadków`);
+  }
+  const baselineBench = existsSync(join(ROOT, "benchmarks/baseline.json"))
+    ? readJson(join(ROOT, "benchmarks/baseline.json"))
+    : null;
   const benchmarks = summariseBenchmarks(latestBench, baselineBench);
   if (benchmarks) {
     writeFileSync(join(outDir, "benchmarks.json"), `${JSON.stringify(benchmarks, null, 2)}\n`, "utf8");
-    log(`  benchmarki: ${benchmarks.cases} przypadków, najgorsza zmiana ${(benchmarks.worstRegression * 100).toFixed(1)}%`);
+    log(
+      `  benchmarki: ${benchmarks.cases} przypadków, najgorsza zmiana ${(benchmarks.worstRegression * 100).toFixed(1)}%`
+    );
   }
 
-  const apiSnapshot = existsSync(join(ROOT, "tests/fixtures/public-api.json")) ? readJson(join(ROOT, "tests/fixtures/public-api.json")) : null;
+  const apiSnapshot = existsSync(join(ROOT, "tests/fixtures/public-api.json"))
+    ? readJson(join(ROOT, "tests/fixtures/public-api.json"))
+    : null;
   const stability = readStabilityCounts();
   const versionFile = readEngineVersionFile(ROOT);
 
@@ -187,18 +204,22 @@ const buildArtifacts = async () => {
   };
   writeFileSync(join(outDir, "release.json"), `${JSON.stringify(release, null, 2)}\n`, "utf8");
 
-  if (apiSnapshot) writeFileSync(join(outDir, "api-snapshot.json"), `${JSON.stringify(apiSnapshot, null, 2)}\n`, "utf8");
+  if (apiSnapshot)
+    writeFileSync(join(outDir, "api-snapshot.json"), `${JSON.stringify(apiSnapshot, null, 2)}\n`, "utf8");
   copyFileSync(manifestPath, join(outDir, "bundle-manifest.json"));
-  if (latestBench) writeFileSync(join(outDir, "benchmarks-raw.json"), `${JSON.stringify(latestBench, null, 2)}\n`, "utf8");
+  if (latestBench)
+    writeFileSync(join(outDir, "benchmarks-raw.json"), `${JSON.stringify(latestBench, null, 2)}\n`, "utf8");
 
   const changelogEntry = readChangelogEntry(version);
   const deprecations = readDeprecations();
-  const projectFormatVersion = /CURRENT_PROJECT_VERSION\s*=\s*(\d+)/.exec(
-    readFileSync(join(ROOT, "packages/engine/src/project/Schema.ts"), "utf8")
-  )?.[1] ?? "?";
-  const saveFormatVersion = /CURRENT_SAVE_VERSION\s*=\s*(\d+)/.exec(
-    readFileSync(join(ROOT, "packages/engine/src/save/PlayerSave.ts"), "utf8")
-  )?.[1] ?? "?";
+  const projectFormatVersion =
+    /CURRENT_PROJECT_VERSION\s*=\s*(\d+)/.exec(
+      readFileSync(join(ROOT, "packages/engine/src/project/Schema.ts"), "utf8")
+    )?.[1] ?? "?";
+  const saveFormatVersion =
+    /CURRENT_SAVE_VERSION\s*=\s*(\d+)/.exec(
+      readFileSync(join(ROOT, "packages/engine/src/save/PlayerSave.ts"), "utf8")
+    )?.[1] ?? "?";
   if (changelogEntry) writeFileSync(join(outDir, "changelog-entry.md"), `${changelogEntry}\n`, "utf8");
 
   const extractBullets = (markdown, limit = 3) => {
@@ -239,7 +260,12 @@ const buildArtifacts = async () => {
     "",
     deprecations.length
       ? ["| Deprecated | Replacement | Removed in |", "|------------|-------------|------------|"]
-          .concat(deprecations.map((entry) => `| \`${entry.id}\` | ${entry.replacement ? `\`${entry.replacement}\`` : "—"} | ${entry.removeIn} |`))
+          .concat(
+            deprecations.map(
+              (entry) =>
+                `| \`${entry.id}\` | ${entry.replacement ? `\`${entry.replacement}\`` : "—"} | ${entry.removeIn} |`
+            )
+          )
           .join("\n")
       : "None.",
     "",
@@ -252,7 +278,9 @@ const buildArtifacts = async () => {
     "",
     "| Check | Result |",
     "|-------|--------|",
-    testSummary ? `| Unit and integration tests | ${testSummary.passed}/${testSummary.total} in ${testSummary.files} files |` : "| Unit and integration tests | skipped |",
+    testSummary
+      ? `| Unit and integration tests | ${testSummary.passed}/${testSummary.total} in ${testSummary.files} files |`
+      : "| Unit and integration tests | skipped |",
     benchmarks
       ? `| Benchmarks vs baseline | worst ${(benchmarks.worstRegression * 100).toFixed(1)} %, median ${(benchmarks.medianDelta * 100).toFixed(1)} % |`
       : "| Benchmarks vs baseline | no data |",
@@ -337,7 +365,15 @@ const check = () => {
 
   if (existsSync(join(ROOT, "docs"))) problems.push("Katalog docs/ wrócił — dokumentacja żyje pod " + DOCS_URL);
 
-  for (const file of ["native/core/CMakeLists.txt", "native/core/include/b2d/core/scene.hpp", "native/core/src/bindings.cpp"]) {
+  for (const example of ["examples/determinism/expected.json", "examples/native-core/expected.json"]) {
+    if (!existsSync(join(ROOT, example))) problems.push(`Brak ${example} — uruchom "npm run examples:baseline"`);
+  }
+
+  for (const file of [
+    "native/core/CMakeLists.txt",
+    "native/core/include/b2d/core/scene.hpp",
+    "native/core/src/bindings.cpp"
+  ]) {
     if (!existsSync(join(ROOT, file))) problems.push(`Brak ${file}`);
   }
 
@@ -345,7 +381,9 @@ const check = () => {
   if (existsSync(manifestPath)) {
     const manifest = readJson(manifestPath);
     if (!String(manifest.buildId ?? "").startsWith(`${versions.rootVersion}+`)) {
-      problems.push(`dist/release.json ma buildId "${manifest.buildId}", oczekiwano prefiksu "${versions.rootVersion}+"`);
+      problems.push(
+        `dist/release.json ma buildId "${manifest.buildId}", oczekiwano prefiksu "${versions.rootVersion}+"`
+      );
     }
   }
 
@@ -366,7 +404,9 @@ else if (flag("dry-run")) {
   log(`Wersja: ${versions.rootVersion}`);
   log(`Pakiety: ${versions.packages.map((entry) => `${entry.name}@${entry.version}`).join(", ")}`);
   log(`Changelog: ${readChangelogEntry(versions.rootVersion) ? "wpis istnieje" : "BRAK WPISU"}`);
-  log(`Artefakty: ${existsSync(join(ROOT, "release/artifacts")) ? "katalog istnieje" : "katalog powstanie przy --artifacts"}`);
+  log(
+    `Artefakty: ${existsSync(join(ROOT, "release/artifacts")) ? "katalog istnieje" : "katalog powstanie przy --artifacts"}`
+  );
 } else {
   log("Użycie: node scripts/release.mjs --check | --artifacts [--skip-tests] [--out=DIR] | --dry-run");
   process.exit(2);
